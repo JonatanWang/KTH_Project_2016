@@ -1,0 +1,19 @@
+{
+  "time":1409219340,
+"error_code":0,
+"campaign_status":[
+{ "season":20, "points":846, "points_max":10000, "status":"active", "introduction_order":1 },
+{ "season":20, "points":854, "points_max":10000, "status":"active", "introduction_order":0 },
+{ "season":20, "points":2100, "points_max":10000, "status":"active", "introduction_order":2 }
+],
+"defend_event": { "season":20, "event_id":179, "start_time":1409010602, "end_time":1409011021, "region":1, "enemy":1, "points_max":10, "points":10, "status":"success" },
+"attack_events":[
+{ "season":10, "event_id":48, "start_time":1399563385, "end_time":1399566985, "enemy":0, "points_max":10, "points":10, "status":"success" },
+{ "season":9, "event_id":46, "start_time":1399563112, "end_time":1399566712, "enemy":1, "points_max":10, "points":10, "status":"success" },
+{ "season":10, "event_id":50, "start_time":1399563385, "end_time":1399566985, "enemy":2, "points_max":10, "points":10, "status":"success" }
+],
+"statistics":[
+{ "season":20, "season_duration":0, "enemy":0, "players":113, "total_unique_players":146, "missions":28042, "successful_missions":470, "total_mission_difficulty":2032, "completed_planets":278, "defend_events":7, "successful_defend_events":0, "attack_events":0, "successful_attack_events":0, "deaths":26331, "kills":210736, "accidentals":1105, "shots":387695, "hits":131255 },
+{ "season":20, "season_duration":0, "enemy":1, "players":81, "total_unique_players":146, "missions":815, "successful_missions":378, "total_mission_difficulty":1824, "completed_planets":254, "defend_events":7, "successful_defend_events":0, "attack_events":0, "successful_attack_events":0, "deaths":2153, "kills":50378, "accidentals":739, "shots":289594, "hits":107736 },
+{ "season":20, "season_duration":0, "enemy":2, "players":35, "total_unique_players":146, "missions":496, "successful_missions":161, "total_mission_difficulty":774, "completed_planets":299, "defend_events":7, "successful_defend_events":0, "attack_events":0, "successful_attack_events":0, "deaths":1441, "kills":11547, "accidentals":323, "shots":142838, "hits":48206 }
+] }

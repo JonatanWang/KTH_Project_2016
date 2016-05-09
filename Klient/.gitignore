@@ -1,0 +1,12 @@
+<<<<<<< Temporary merge branch 1
+logs/*
+!.gitkeep
+node_modules/
+bower_components/
+tmp
+.DS_Store
+.idea
+app/view2/test.html
+=======
+/bin/
+>>>>>>> Temporary merge branch 2
