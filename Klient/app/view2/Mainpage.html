@@ -33,7 +33,7 @@
         <br /><br/>
         <br/>
 
-        <!Sätter in Select  och innehåll från delen som Teddy & Carlos jobbade med, det är det enda som ändras i denna fil -->
+        <!--Sätter in Select  och innehåll från delen som Teddy & Carlos jobbade med, det är det enda som ändras i denna fil -->
         <select id="enemyType" name="Faction" data-value="bugs" onchange="angular.element(this).scope().camp()">
             <option value="global_stats">GlobalStats</option>
             <option value="0">Bugs</option>
@@ -41,10 +41,12 @@
             <option value="2">Cyborgs</option>
         </select>
 
+        <!-- För att få dropdown menyn att reagera korrekt i alla lägen, Teddy & Co -->
         <select id="seasons"data-value="bugs" onmouseover="angular.element(this).scope().getSeason();" onchange="saveSeason();angular.element(this).scope().camp();">
             <option value="">Season</option>
         </select>
 
+        <!-- För att få dropdown menyn att reagera korrekt i alla lägen, Teddy & Co -->
         <select id="all"data-value="global" onmouseover="angular.element(this).scope().filterData();" onchange="angular.element(this).scope().camp()">
             <option value="">All</option>
         </select>
@@ -55,322 +57,60 @@
 </div>
 
 
-<!-- FÖr att få evalslider att funka  -->
+<!-- För att få evalslider att funka, Teddy & Co  -->
 <div ng-controller="WebApiCtrl">
     <h2>ArrowHead stats:</h2>
     <div ng-include="'chebox_Snap.html'"></div>
-<!--
-    {{campaign}}
-    <h2>Campaign Status</h2>
 
-
+    <!--Dani & Co -->
     <table style="width:75%">
         <tr>
-            <th>Time:</th>
-            <th>Error Code:</th>
-            <th>Season:</th>
-            <th>Points:</th>
-            <th>Points taken:</th>
-            <th>Max points</th>
-            <th>Status</th>
-            <th>Introduction Order:</th>
+            <th>Accuracy:</th>
+            <th>KD ratio</th>
+            <th>Mission Percentage</th>
+            <th>Defend Percentage</th>
+            <th>Attack Percentage</th>
+            <th>Accidential kills</th>
         </tr>
-        <tr>
-            <td>{{campaign.time}}</td>
+        <td>
+            <li ng-repeat="calc in calculation">
+                {{calc.accuracy}}
+            </li>
+        </td>
+        <td>
+            <li ng-repeat="calc in calculation">
+                {{calc.kdRatio}}
+            </li>
+        </td>
 
-            <td>{{campaign.error_code}}</td>
+        <td>
+            <li ng-repeat="calc in calculation">
+                {{calc.missionsPercentage}}
+            </li>
+        </td>
 
-            <td>
-                <li ng-repeat="stat in campaign.campaign_status">
-                    {{stat.season}}
-                </li>
-            </td>
+        <td>
+            <li ng-repeat="calc in calculation">
+                {{calc.defendPercentage}}
+            </li>
+        </td>
 
-            <td>
-                <li ng-repeat="stat in campaign.campaign_status">
-                    {{stat.points}}
-                </li>
-            </td>
+        <td>
+            <li ng-repeat="calc in calculation">
+                {{calc.attackPercentage}}
+            </li>
+        </td>
 
-            <td>
-                <li ng-repeat="stat in campaign.campaign_status">
-                    {{stat.points_taken}}
-                </li>
-            </td>
-
-            <td>
-                <li ng-repeat="stat in campaign.campaign_status">
-                    {{stat.points_max}}
-                </li>
-            </td>
-
-            <td>
-                <li ng-repeat="stat in campaign.campaign_status">
-                    {{stat.status}}
-                </li>
-            </td>
-
-            <td>
-                <li ng-repeat="stat in campaign.campaign_status">
-                    {{stat.introduction_order}}
-                </li>
-            </td>
-        </tr>
-    </table>-->
-
-    <!--Defend Event stats-->
-    <!--
-    <h2>Defend Event</h2>
-    <table style="width:75%">
-        <tr>
-            <th>Season:</th>
-            <th>Event ID:</th>
-            <th>Start Time:</th>
-            <th>End Time</th>
-            <th>Region:</th>
-            <th>Enemy:</th>
-            <th>Max points:</th>
-            <th>Points:</th>
-            <th>Status:</th>
-        </tr>
-        <tr>
-            <td>
-                {{campaign.defend_event.season}}
-            </td>
-
-            <td>
-                {{campaign.defend_event.event_id}}
-            </td>
-
-            <td>
-                {{campaign.defend_event.start_time}}
-            </td>
-
-            <td>
-                {{campaign.defend_event.end_time}}
-            </td>
-
-            <td>
-                {{campaign.defend_event.region}}
-            </td>
-
-            <td>
-                {{campaign.defend_event.enemy}}
-            </td>
-            <td>
-                {{campaign.defend_event.points_max}}
-            </td>
-            <td>
-                {{campaign.defend_event.points}}
-            </td>
-            <td>
-                {{campaign.defend_event.status}}
-            </td>
-        </tr>
+        <td>
+            <li ng-repeat="calc in calculation">
+                {{calc.accidentalKills}}
+            </li>
+        </td>
     </table>
-    -->
-    <!--Attack Event stats-->
 
-    <!--
-    <h2>Attack Event</h2>
 
-    <table style="width:75%">
-        <tr>
-            <th>Season:</th>
-            <th>Event id:</th>
-            <th>Start time:</th>
-            <th>End time:</th>
-            <th>Enemy:</th>
-            <th>Max Points:</th>
-            <th>Points:</th>
-            <th>Status:</th>
-            <th>Players at Start:</th>
-            <th>Max Event ID:</th>
-        </tr>
-        <tr>
-            <td>
-                <li ng-repeat="attack in campaign.attack_events">
-                    {{attack.season}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="attack in campaign.attack_events">
-                    {{attack.event_id}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="attack in campaign.attack_events">
-                    {{attack.start_time}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="attack in campaign.attack_events">
-                    {{attack.end_time}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="attack in campaign.attack_events">
-                    {{attack.enemy}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="attack in campaign.attack_events">
-                    {{attack.points_max}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="attack in campaign.attack_events">
-                    {{attack.points}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="attack in campaign.attack_events">
-                    {{attack.status}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="attack in campaign.attack_events">
-                    {{attack.players_at_start}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="attack in campaign.attack_events">
-                    {{attack.max_event_id}}
-                </li>
-            </td>
-        </tr>
-    </table>
-    -->
-    <!--Statistics-->
-    <!--
-    <h2>Statistics</h2>
-    <table style="width:75%">
-        <tr>
-            <th>Season:</th>
-            <th>Season Duration:</th>
-            <th>Enemy:</th>
-            <th>Players:</th>
-            <th>Total Unique Players:</th>
-            <th>Missions:</th>
-            <th>Successful Missions:</th>
-            <th>Total Mission Difficulty:</th>
-            <th>Completed Planets:</th>
-            <th>Defend Events:</th>
-            <th>Successful Defend Events:</th>
 
-        </tr>
 
-        <tr>
-            <td>
-                <li ng-repeat="stat in campaign.statistics">
-                    {{stat.season}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="stat in campaign.statistics">
-                    {{stat.season_duration}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="stat in campaign.statistics">
-                    {{stat.enemy}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="stat in campaign.statistics">
-                    {{stat.players}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="stat in campaign.statistics">
-                    {{stat.total_unique_players}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="stat in campaign.statistics">
-                    {{stat.missions}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="stat in campaign.statistics">
-                    {{stat.successful_missions}}
-                </li>
-            </td>
-
-            <td>
-                <li ng-repeat="stat in campaign.statistics">
-                    {{stat.total_mission_difficulty}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="stat in campaign.statistics">
-                    {{stat.completed_planets}}
-                </li>
-            </td>
-
-            <td>
-                <li ng-repeat="stat in campaign.statistics">
-                    {{stat.defend_events}}
-                </li>
-            </td>
-            <td>
-                <li ng-repeat="stat in campaign.statistics">
-                    {{stat.successful_defend_events}}
-                </li>
-            </td>
-
-            <table style="width:75%">
-                <tr>
-
-                    <th>Attack Events:</th>
-                    <th>Successful Attack Events:</th>
-                    <th>Deaths:</th>
-                    <th>Kills:</th>
-                    <th>Accidentals:</th>
-                    <th>Shots:</th>
-                    <th>Hits:</th>
-
-                </tr>
-
-                <td>
-                    <li ng-repeat="stat in campaign.statistics">
-                        {{stat.attack_events}}
-                    </li>
-                </td>
-                <td>
-                    <li ng-repeat="stat in campaign.statistics">
-                        {{stat.successful_attack_events}}
-                    </li>
-                </td>
-                <td>
-                    <li ng-repeat="stat in campaign.statistics">
-                        {{stat.deaths}}
-                    </li>
-                </td>
-                <td>
-                    <li ng-repeat="stat in campaign.statistics">
-                        {{stat.kills}}
-                    </li>
-                </td>
-                <td>
-                    <li ng-repeat="stat in campaign.statistics">
-                        {{stat.accidentals}}
-                    </li>
-                </td>
-                <td>
-                    <li ng-repeat="stat in campaign.statistics">
-                        {{stat.shots}}
-                    </li>
-                </td>
-                <td>
-                    <li ng-repeat="stat in campaign.statistics">
-                        {{stat.hits}}
-                    </li>
-                </td>
-            </table>
-        </tr>
-    </table>
-    -->
 </div>
 </body>
 </html>

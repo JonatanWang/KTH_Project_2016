@@ -1,16 +1,13 @@
-var sliderVal=1;
-var enemyType="global_stats";
-var choosedSeason=1;
-var currentSeason=1;
-var flagg=false; //flagg..
-var jsonData = null;
+var sliderVal = 1;
+var enemyType = "global_stats"; // Teddy & Co, default drop down menu value
+var choosedSeason = 1;
+var currentSeason = 1;
+var flagg = false;
+var one,two;
+var timestamp=null;
 
-/**
- * enemyType lagt till för funktionen som dropdown menyn för fiendetyp använder.
- * Slås ihop med Dani, Alican och Fadis uppladdning, denna kommentar är för debug
- * ifall det inte fungerar efter ihopslagning.
- */
 
+var jsonData = null; // Teddy & Co, for filtering
 
 function evalSlider2() {
 
@@ -63,40 +60,42 @@ function saveSeason() {
     choosedSeason = document.getElementById('seasons').value;
 }
 
-var app = angular.module('app', [], function($httpProvider){
+var app = angular.module('app', [], function ($httpProvider) {
 
+    /**
+     * Teddy & Co modified following:
+     */
     $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+    //Access-Control-Allow-Origin not needed anymore
 });
 
 
-/**
- *  Denna funktion modifierades av Teddy & Carlos för att fungera med drop-down
- *  menyn. Anropen bör ske med parametrarna season, start, end. Statiska värden
- *  lagt till för befintliga anrop till dataService. Dessa anrop till service bör ses till om det
- *  int fungerar som det bör.
- */
-app.service('dataService', function($http) {
-    
-    this.getData = function(season, start, end) {
+app.service('dataService', function ($http) {
 
+    this.getData = function (season, start, end) {
+
+        /**
+         * Teddy & Co modified following:
+         */
         // $http() returns a $promise that we can add handlers with .then()
         return $http({
             /*method: 'POST',
-            url: 'https://api.helldiversgame.com/0.3/',*/
+             url: 'https://api.helldiversgame.com/0.3/',*/
             method:'GET',
             url:"http://localhost:8080/GetSnapshots",
             header: 'Content-Type : application/x-www-form-urlencoded',
             //action : 'get_snapshots',
             params: {"season": season, "start": start, "end": end}
-
-
         });
     };
 
-    this.getCampaign=function () {
+    this.getCampaign = function () {
 
+        /**
+         * Teddy & Co modified following:
+         */
         return $http({
-            method:'GET',
+            method: 'GET',
             url:"http://localhost:8080/GetCampaignStatus",
             //method: "POST",
             //url: 'https://api.helldiversgame.com/0.3/',
@@ -112,22 +111,35 @@ app.service('dataService', function($http) {
 });
 
 
-app.controller("WebApiCtrl", function($scope, dataService) {
+app.controller("WebApiCtrl", function ($scope, dataService) {
 
     $scope.data = null;
+
 
     dataService.getData(choosedSeason, sliderVal, sliderVal).then(function (dataResponse) {
         $scope.data = dataResponse;
     });
 
+    $scope.getSnaps = function () {
+
+        dataService.getData(choosedSeason, sliderVal, sliderVal).then(function (dataResponse) {
+            $scope.data = dataResponse;
+        });
+    };
+
+    /**
+     * Teddy & Co modified:
+     */
     $scope.evalSlider = function () {
         dataService.getData(choosedSeason, sliderVal, sliderVal).then(function (dataResponse) {
             $scope.data = dataResponse;
         });
     };
 
-    $scope.camp=function () {
-        
+    /**
+     * Teddy & Co modified:
+     */
+    $scope.camp = function () {
         enemyType=document.getElementById('enemyType').value;
         var filterOption = document.getElementById('all').value;
         var allFilter = document.getElementById('all').firstElementChild;
@@ -143,7 +155,7 @@ app.controller("WebApiCtrl", function($scope, dataService) {
         {
             dataService.getData(choosedSeason, sliderVal, sliderVal).then(function (dataResponse) {
                 jsonData = dataResponse;
-                
+
                 var result = [];
 
                 if(allFilter.value != filterOption)
@@ -185,10 +197,10 @@ app.controller("WebApiCtrl", function($scope, dataService) {
                 }
 
                 /*if(result == null)
-                {
+                 {
 
-                    $scope.data = "there is no such option at this moment";
-                }*/
+                 $scope.data = "there is no such option at this moment";
+                 }*/
 
                 $scope.data = result;
             });
@@ -196,10 +208,27 @@ app.controller("WebApiCtrl", function($scope, dataService) {
 
     };
 
+    function test(j, timestamp, nowtimestamp){
+        dataService.getData(choosedSeason, timestamp, nowtimestamp).then(function (dataResponse) {
+
+            // $scope.data = dataResponse;
+            if(j==0){
+                one=dataResponse.data.defend_events[0].points;
+          //      document.write("lol1: "+one);
+                timestamp-=3600000;
+            }
+            if(j==1){
+                two=dataResponse.data.defend_events[0].points;
+          //      document.write("One: "+one +" ,two :"+two +"<br />");
+          //      document.write(" FUNKAR: "+runLinear(sliderVal,one,two));
+            //    document.write("lol 2: "+two);
+            }
+        });
+
+    }
+
     $scope.getSeason = function () {
-
         dataService.getCampaign().then(function (dataResponse) {
-
             $scope.trubble = dataResponse;
             currentSeason = dataResponse.data.campaign_status[1].season;
             createSelectOptions();
@@ -207,14 +236,14 @@ app.controller("WebApiCtrl", function($scope, dataService) {
             $scope.calculation=getCalculations();
         });
     };
-    
+
     $scope.defaultSlide = function () {
         return 1;
     };
 
     // möjliggöra dynamisk ändring --> kommer att användas senare
     $scope.getEventSize = function () {
-        return 50;
+        return 30;
     };
 
     /**fixed currentsSeason in getCampaign function. It gets the currentSeason**/
@@ -227,15 +256,15 @@ app.controller("WebApiCtrl", function($scope, dataService) {
     });
 
     /**
-     * Lagt till från Teddy & Carlos för val av fiende/globala värden i dropdown meny
+     * Teddy & Co modified:
      */
-    /**
-     saveEnemyType - current start + end value should be dynamic
-     **/
     $scope.selectStatisticsInSeason = function (){
         enemyType=document.getElementById('enemyType').value;
     };
 
+    /**
+     * Teddy & Co added:
+     */
     $scope.filterData = function(){
 
 
@@ -260,29 +289,29 @@ app.controller("WebApiCtrl", function($scope, dataService) {
              * **/
 
             /*var option = document.createElement("option");
-            option.text = "----------";
-            element.add(option);
+             option.text = "----------";
+             element.add(option);
 
-            if(jsonData.data.defend_events != null)
-            {
-                for(var datafiltered  in jsonData.data.defend_events[0])
-                {
-                    var option = document.createElement("option");
-                    option.text = datafiltered;
-                    //console.log(option);
-                    element.add(option);
-                }
-            }
-            else if(jsonData.data.attack_events != null)
-            {
-                for(var datafiltered  in jsonData.data.attack_events[0])
-                {
-                    var option = document.createElement("option");
-                    option.text = datafiltered;
-                    //console.log(option);
-                    element.add(option);
-                }
-            }*/
+             if(jsonData.data.defend_events != null)
+             {
+             for(var datafiltered  in jsonData.data.defend_events[0])
+             {
+             var option = document.createElement("option");
+             option.text = datafiltered;
+             //console.log(option);
+             element.add(option);
+             }
+             }
+             else if(jsonData.data.attack_events != null)
+             {
+             for(var datafiltered  in jsonData.data.attack_events[0])
+             {
+             var option = document.createElement("option");
+             option.text = datafiltered;
+             //console.log(option);
+             element.add(option);
+             }
+             }*/
         }
     }
 
