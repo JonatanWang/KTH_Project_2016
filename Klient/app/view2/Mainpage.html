@@ -8,6 +8,8 @@
     <title>stats</title>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
     <script src="MainpageData.js"></script>
+    <script src="Calculation.js"></script>
+    <script src="LinearCalc.js"></script>
     <link rel="stylesheet" type="text/css" href="MainpageDesign.css">
     <link rel="stylesheet" type="text/css" href="rangeBarDesign.css">
     <link rel="stylesheet" type="text/css" href="droplistDesign.css">
@@ -16,7 +18,7 @@
 <body ng-app="app">
 <div ng-controller="WebApiCtrl">
     <h1 style="color: rgba(0, 0, 0, 1)">View example</h1><br/>
-    <div id="slider" style="background: rgba(209, 255, 181, 1); height:500px; width: 98%;">
+    <div id="slider" style="background: rgba(209, 255, 181, 1); height:500px; width: 98%; overflow: auto">
         {{data}}
     </div>
     <br/><br/>
@@ -26,13 +28,13 @@
             <output id="sliderValue"></output>
         </p>
         <!-- change var name  -->
-        <input style="width:500px;" type="range" id="rating" min="1" max="{{getEventSize()}}" value="{{defaultSlide()}}" step="1"
-               onchange="angular.element(this).scope().evalSlider();angular.element(this).scope().camp();" oninput="evalSlider2()"/>
+        <input style="width:500px;" type="range" id="rating" min="1" max="{{getEventSize()}}" value="{{defaultSlide()}}" step="0.01"
+               onchange="angular.element(this).scope().camp();evalSlider2();" oninput="evalSlider2()"/>
         <br /><br/>
         <br/>
 
         <!Sätter in Select  och innehåll från delen som Teddy & Carlos jobbade med, det är det enda som ändras i denna fil -->
-        <select id="enemyType" name="Faction" data-value="bugs" onchange="angular.element(this).scope().selectStatisticsInSeason()">
+        <select id="enemyType" name="Faction" data-value="bugs" onchange="angular.element(this).scope().camp()">
             <option value="global_stats">GlobalStats</option>
             <option value="0">Bugs</option>
             <option value="1">Illuminate</option>
@@ -42,6 +44,12 @@
         <select id="seasons"data-value="bugs" onmouseover="angular.element(this).scope().getSeason();" onchange="saveSeason();angular.element(this).scope().camp();">
             <option value="">Season</option>
         </select>
+
+        <select id="all"data-value="global" onmouseover="angular.element(this).scope().filterData();" onchange="angular.element(this).scope().camp()">
+            <option value="">All</option>
+        </select>
+
+
     </form>
     <br/>
 </div>
@@ -50,8 +58,12 @@
 <!-- FÖr att få evalslider att funka  -->
 <div ng-controller="WebApiCtrl">
     <h2>ArrowHead stats:</h2>
+    <div ng-include="'chebox_Snap.html'"></div>
+<!--
     {{campaign}}
     <h2>Campaign Status</h2>
+
+
     <table style="width:75%">
         <tr>
             <th>Time:</th>
@@ -67,46 +79,47 @@
             <td>{{campaign.time}}</td>
 
             <td>{{campaign.error_code}}</td>
-            <!--Season-->
+
             <td>
                 <li ng-repeat="stat in campaign.campaign_status">
                     {{stat.season}}
                 </li>
             </td>
-            <!--Points-->
+
             <td>
                 <li ng-repeat="stat in campaign.campaign_status">
                     {{stat.points}}
                 </li>
             </td>
-            <!--Points Taken-->
+
             <td>
                 <li ng-repeat="stat in campaign.campaign_status">
                     {{stat.points_taken}}
                 </li>
             </td>
-            <!--Max Points-->
+
             <td>
                 <li ng-repeat="stat in campaign.campaign_status">
                     {{stat.points_max}}
                 </li>
             </td>
-            <!--Status-->
+
             <td>
                 <li ng-repeat="stat in campaign.campaign_status">
                     {{stat.status}}
                 </li>
             </td>
-            <!--Introduction Order-->
+
             <td>
                 <li ng-repeat="stat in campaign.campaign_status">
                     {{stat.introduction_order}}
                 </li>
             </td>
         </tr>
-    </table>
+    </table>-->
 
     <!--Defend Event stats-->
+    <!--
     <h2>Defend Event</h2>
     <table style="width:75%">
         <tr>
@@ -128,37 +141,37 @@
             <td>
                 {{campaign.defend_event.event_id}}
             </td>
-            <!--Season-->
+
             <td>
                 {{campaign.defend_event.start_time}}
             </td>
-            <!--end time-->
+
             <td>
                 {{campaign.defend_event.end_time}}
             </td>
-            <!--region-->
+
             <td>
                 {{campaign.defend_event.region}}
             </td>
-            <!--enemy-->
+
             <td>
                 {{campaign.defend_event.enemy}}
             </td>
-            <!--max points-->
             <td>
                 {{campaign.defend_event.points_max}}
             </td>
-            <!--Points-->
             <td>
                 {{campaign.defend_event.points}}
             </td>
-            <!--status-->
             <td>
                 {{campaign.defend_event.status}}
             </td>
         </tr>
     </table>
+    -->
     <!--Attack Event stats-->
+
+    <!--
     <h2>Attack Event</h2>
 
     <table style="width:75%">
@@ -227,7 +240,9 @@
             </td>
         </tr>
     </table>
+    -->
     <!--Statistics-->
+    <!--
     <h2>Statistics</h2>
     <table style="width:75%">
         <tr>
@@ -306,7 +321,7 @@
 
             <table style="width:75%">
                 <tr>
-                    <!--Andra delen-->
+
                     <th>Attack Events:</th>
                     <th>Successful Attack Events:</th>
                     <th>Deaths:</th>
@@ -355,6 +370,7 @@
             </table>
         </tr>
     </table>
+    -->
 </div>
 </body>
 </html>

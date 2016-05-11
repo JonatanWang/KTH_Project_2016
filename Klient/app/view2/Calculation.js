@@ -1,99 +1,97 @@
-/**
- * Created by Fadi on 2016-05-06.
- */
+var enemyResult = [];
 
-var season; //ID
-var enemy; //enemy ID
-var missions, successful_missions; //missions percentage
-var defend_events, successful_defend_events; //defend event percentage
-var attack_events, successful_attack_events; //attack event percentage
-var deaths, kills, accidentals; //KD
-var shots, hits; //accuracy
-var players, total_unique_players;
-var total_mission_difficulty, completed_planets;
-var accuracy, kdRatio, missionsPercentage, defendPercentage, attackPercentage, accidentalKills;
-var jsObject;
+function run(jsonObj) {
 
-function run() {
+    var i;
 
-    getJSONObject();
-    accuracyCalc();
-    kdRatioCalc();
-    missionSuccessCalc();
-    defendSuccessCalc();
-    attackSuccessCalc();
-    accidentialCalc();
+    if (jsonObj != null) {
+
+        for (i = 0; i < jsonObj.length; i++) {
+
+            var accidential = accidentialCalc(jsonObj[i].accidentals, jsonObj[i].kills);
+            var attackPercentage = attackSuccessCalc(jsonObj[i].successful_attack_events, jsonObj[i].attack_events);
+            var defendPercentage = defendSuccessCalc(jsonObj[i].successful_defend_events, jsonObj[i].defend_events);
+            var missionsPercentage = missionSuccessCalc(jsonObj[i].successful_missions, jsonObj[i].missions);
+            var kdRatio = kdRatioCalc(jsonObj[i].kills, jsonObj[i].deaths);
+            var accuracy = accuracyCalc(jsonObj[i].hits, jsonObj[i].shots);
+
+            enemyResult[i] = {
+
+                accuracy: accuracy,
+                kdRatio: kdRatio,
+                missionsPercentage: missionsPercentage,
+                defendPercentage: defendPercentage,
+                attackPercentage: attackPercentage,
+                accidentalKills: accidential
+            };
+        }
+    }
 }
 
-function getJSONObject() {
-
-    enemy = jsObject.get("enemy");
-    season = jsObject.get("season");
-    players = jsObject.get("players");
-    total_unique_players = jsObject.get("total_unique_players");
-    total_mission_difficulty = jsObject.get("total_mission_difficulty");
-    completed_planets = jsObject.get("completed_planets");
-}
-
-function accuracyCalc() {
+function accuracyCalc(hits, shots) {
 
     if (hits == 0 || shots == 0) {
 
-        accuracy = 0;
-    }else {
+        return 0;
+    } else {
 
-        accuracy = (hits / shots) * 100;
+        return ((hits / shots) * 100);
     }
 }
 
-function kdRatioCalc() {
+function kdRatioCalc(kills, deaths) {
 
-    if (kills == 0 || deaths == 0){
+    if (kills == 0 || deaths == 0) {
 
-        kdRatio = 0;
-    }else {
+        return 0;
+    } else {
 
-        kdRatio = kills / deaths;
+        return (kills / deaths);
     }
 }
 
-function missionSuccessCalc () {
+function accidentialCalc(accidentals, kills) {
 
-    if (successful_missions == 0 || missions == 0) {
-
-        missionsPercentage = 0;
-    }
-    else {
-
-        missionsPercentage = (successful_missions / missions) * 100;
-    }
+    return ((accidentals / kills) * 100);
 }
 
-function defendSuccessCalc (){
-
-    if (successful_defend_events == 0 || defend_events == 0){
-
-        defendPercentage = 0;
-    }
-    else {
-
-        defendPercentage = (successful_defend_events / defend_events) * 100;
-    }
-}
-
-function attackSuccessCalc () {
+function attackSuccessCalc(successful_attack_events, attack_events) {
 
     if (successful_attack_events == 0 || attack_events == 0) {
 
-        attackPercentage = 0;
+        return 0;
     }
     else {
 
-        attackPercentage = (successful_attack_events / attack_events) * 100;
+        return (successful_attack_events / attack_events) * 100;
     }
 }
 
-function accidentialCalc () {
+function defendSuccessCalc(successful_defend_events, defend_events) {
 
-    accidentalKills = (accidentals / kills) * 100;
+    if (successful_defend_events == 0 || defend_events == 0) {
+
+        return 0;
+    }
+    else {
+
+        return (successful_defend_events / defend_events) * 100;
+    }
+}
+
+function missionSuccessCalc(successful_missions, missions) {
+
+    if (successful_missions == 0 || missions == 0) {
+
+        return 0;
+    }
+    else {
+
+        return (successful_missions / missions) * 100;
+    }
+}
+
+function getCalculations() {
+
+    return enemyResult;
 }
