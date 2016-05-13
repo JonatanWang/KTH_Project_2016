@@ -108,6 +108,16 @@ app.service('dataService', function ($http) {
             data :'action=get_campaign_status'
         });
     };
+
+    this.getSeasonStatistics = function(season)
+    {
+        return $http({
+            method: 'GET',
+            url:"http://localhost:8080/GetSeasonStats",
+            headers: { "Content-Type" : "application/x-www-form-urlencoded"},
+            params: {"season": season}
+        });
+    };
 });
 
 
@@ -142,70 +152,67 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
     $scope.camp = function () {
         enemyType=document.getElementById('enemyType').value;
         var filterOption = document.getElementById('all').value;
-        var allFilter = document.getElementById('all').firstElementChild;
-
+        var season = document.getElementById('seasons').value;
+        console.log(enemyType);
         if(enemyType == "global_stats")
         {
-            dataService.getCampaign().then(function (dataResponse) {
 
-                $scope.data = dataResponse.data;
-            });
+                console.log(season);
+                dataService.getSeasonStatistics(season).then(function (dataResponse) {
+                    console.log("in get season stats");
+                    console.log(dataResponse.data);
+                   $scope.data = dataResponse.data;
+                });
         }
         else //this means that other than global i chosen
         {
             dataService.getData(choosedSeason, sliderVal, sliderVal).then(function (dataResponse) {
                 jsonData = dataResponse;
 
+
+               // console.log("allfilter=" + allFilter + "filterOption=" + filterOption);
+                console.log(filterOption);
+                //save data to var
                 var result = [];
+                //save data to var
+                var def_events = [];
+                var atta_events = [];
 
-                if(allFilter.value != filterOption)
+                for(var i=0;i<dataResponse.data.defend_events.length;i++)
                 {
-                    var json = dataResponse.data;
-                    //console.log(json[filterOption]);
-                    result = json[filterOption];
+                    if(enemyType == dataResponse.data.defend_events[i].enemy)
+                    {
+                        console.log(dataResponse.data.defend_events[i]);
+                        def_events.push(dataResponse.data.defend_events[i]);
+                    }
                 }
-                else
+                for(var i=0;i<dataResponse.data.attack_events.length;i++)
                 {
-                    if(enemyType != "globla_stats")
+                    if(enemyType == dataResponse.data.attack_events[i].enemy)
                     {
-                        var eventslist = [];
-                        for(var i=0;i<dataResponse.data.defend_events.length;i++)
-                        {
-                            if(enemyType == dataResponse.data.defend_events[i].enemy)
-                            {
-                                console.log(dataResponse.data.defend_events[i]);
-                                eventslist.push(dataResponse.data.defend_events[i]);
-                            }
-                        }
-
-                        for(var i=0;i<dataResponse.data.attack_events.length;i++)
-                        {
-                            if(enemyType == dataResponse.data.attack_events[i].enemy)
-                            {
-                                eventslist.push(dataResponse.data.attack_events[i]);
-                            }
-                        }
-                        console.log(eventslist);
-                        result = eventslist;
+                        atta_events.push(dataResponse.data.attack_events[i]);
                     }
-                    else
-                    {
-                        result = dataResponse.data;
-                        console.log(result);
-                    }
-
                 }
-
-                /*if(result == null)
-                 {
-
-                 $scope.data = "there is no such option at this moment";
-                 }*/
+                //save data to var end
+                    switch(filterOption)
+                    {
+                        case "defend_events":
+                            result = def_events;
+                            console.log("in defend_events");
+                            break;
+                        case "attack_events":
+                            result = atta_events;
+                            console.log("in attack_events");
+                            break;
+                        default:
+                            result = def_events.concat(atta_events);
+                            console.log("in default");
+                            console.log(result);
+                    }
 
                 $scope.data = result;
             });
         }
-
     };
 
     function test(j, timestamp, nowtimestamp){
@@ -287,31 +294,6 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
             /**
              * this part of filtering is not used
              * **/
-
-            /*var option = document.createElement("option");
-             option.text = "----------";
-             element.add(option);
-
-             if(jsonData.data.defend_events != null)
-             {
-             for(var datafiltered  in jsonData.data.defend_events[0])
-             {
-             var option = document.createElement("option");
-             option.text = datafiltered;
-             //console.log(option);
-             element.add(option);
-             }
-             }
-             else if(jsonData.data.attack_events != null)
-             {
-             for(var datafiltered  in jsonData.data.attack_events[0])
-             {
-             var option = document.createElement("option");
-             option.text = datafiltered;
-             //console.log(option);
-             element.add(option);
-             }
-             }*/
         }
     }
 
