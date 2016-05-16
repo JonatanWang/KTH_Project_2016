@@ -81,15 +81,9 @@ app.service('dataService', function ($http) {
         return $http({
             method: 'POST',
             url: 'https://files.arrowheadgs.com/helldivers_api/default/',
-            //header: 'Content-Type : application/x-www-form-urlencoded',
             headers : {'Content-Type': 'application/json','Content-Type' : 'application/x-www-form-urlencoded'},
-            //action : "get_snapshots",
             data : 'action=get_campaign_status',
-            params : {"season": season, "start": start, "end": end},
-            //params: {"action" : "get_snapshots", "season": season, "start": start, "end": end}
-            //param : {"season" : season}1,
-            //param : {"start" : start},
-            //param : {"end" : end}
+            params : {"season": season, "start": start, "end": end}
         });
     };
 
@@ -101,13 +95,6 @@ app.service('dataService', function ($http) {
         return $http({
             method: "POST",
             url: 'https://files.arrowheadgs.com/helldivers_api/default/',
-            //header: 'Content-Type : application/x-www-form-urlencoded',
-            //header: 'Access-Control-Allow-Origin : *',
-            //header: "Accept: application/json",
-            //params: {"season": choosedSeason, "start": sliderVal, "end": sliderVal}
-            //headers: { "Content-Type" : "application/x-www-form-urlencoded"},
-            //params: {"season": season, "start": start, "end": end}
-
             data :'action=get_campaign_status'
         });
     };
@@ -117,15 +104,11 @@ app.service('dataService', function ($http) {
         return $http({
             method: 'POST',
             url:"https://files.arrowheadgs.com/helldivers_api/default/",
-            /*method: 'GET',
-            url:"http://localhost:8080/GetSeasonStats",*/
-            //headers: { "Content-Type" : "application/x-www-form-urlencoded"},
             data :'action=get_season_statistics',
             params: {"season": season}
         });
     };
 });
-
 
 app.controller("WebApiCtrl", function ($scope, dataService) {
 
