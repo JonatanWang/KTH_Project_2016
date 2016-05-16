@@ -79,13 +79,17 @@ app.service('dataService', function ($http) {
          */
         // $http() returns a $promise that we can add handlers with .then()
         return $http({
-            /*method: 'POST',
-             url: 'https://api.helldiversgame.com/0.3/',*/
-            method:'GET',
-            url:"http://localhost:8080/GetSnapshots",
-            header: 'Content-Type : application/x-www-form-urlencoded',
-            //action : 'get_snapshots',
-            params: {"season": season, "start": start, "end": end}
+            method: 'POST',
+            url: 'https://files.arrowheadgs.com/helldivers_api/default/',
+            //header: 'Content-Type : application/x-www-form-urlencoded',
+            headers : {'Content-Type': 'application/json','Content-Type' : 'application/x-www-form-urlencoded'},
+            //action : "get_snapshots",
+            data : 'action=get_campaign_status',
+            params : {"season": season, "start": start, "end": end},
+            //params: {"action" : "get_snapshots", "season": season, "start": start, "end": end}
+            //param : {"season" : season}1,
+            //param : {"start" : start},
+            //param : {"end" : end}
         });
     };
 
@@ -95,16 +99,15 @@ app.service('dataService', function ($http) {
          * Teddy & Co modified following:
          */
         return $http({
-            method: 'GET',
-            url:"http://localhost:8080/GetCampaignStatus",
-            //method: "POST",
-            //url: 'https://api.helldiversgame.com/0.3/',
+            method: "POST",
+            url: 'https://files.arrowheadgs.com/helldivers_api/default/',
             //header: 'Content-Type : application/x-www-form-urlencoded',
             //header: 'Access-Control-Allow-Origin : *',
             //header: "Accept: application/json",
             //params: {"season": choosedSeason, "start": sliderVal, "end": sliderVal}
-            headers: { "Content-Type" : "application/x-www-form-urlencoded"},
+            //headers: { "Content-Type" : "application/x-www-form-urlencoded"},
             //params: {"season": season, "start": start, "end": end}
+
             data :'action=get_campaign_status'
         });
     };
@@ -112,9 +115,12 @@ app.service('dataService', function ($http) {
     this.getSeasonStatistics = function(season)
     {
         return $http({
-            method: 'GET',
-            url:"http://localhost:8080/GetSeasonStats",
-            headers: { "Content-Type" : "application/x-www-form-urlencoded"},
+            method: 'POST',
+            url:"https://files.arrowheadgs.com/helldivers_api/default/",
+            /*method: 'GET',
+            url:"http://localhost:8080/GetSeasonStats",*/
+            //headers: { "Content-Type" : "application/x-www-form-urlencoded"},
+            data :'action=get_season_statistics',
             params: {"season": season}
         });
     };
