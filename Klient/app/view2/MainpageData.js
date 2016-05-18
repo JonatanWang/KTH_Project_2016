@@ -65,7 +65,7 @@ var app = angular.module('app', [], function ($httpProvider) {
     /**
      * Teddy & Co modified following:
      */
-    $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+    $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
     //Access-Control-Allow-Origin not needed anymore
 });
 
@@ -79,11 +79,10 @@ app.service('dataService', function ($http) {
          */
         // $http() returns a $promise that we can add handlers with .then()
         return $http({
+
             method: 'POST',
             url: 'https://files.arrowheadgs.com/helldivers_api/default/',
-            headers : {'Content-Type': 'application/json','Content-Type' : 'application/x-www-form-urlencoded'},
-            data : 'action=get_campaign_status',
-            params : {"season": season, "start": start, "end": end}
+            data : "action=get_snapshots" + "&season=" + season + "&start=" + start + "&end=" + end
         });
     };
 
@@ -92,6 +91,7 @@ app.service('dataService', function ($http) {
         /**
          * Teddy & Co modified following:
          */
+
         return $http({
             method: "POST",
             url: 'https://files.arrowheadgs.com/helldivers_api/default/',
@@ -104,8 +104,7 @@ app.service('dataService', function ($http) {
         return $http({
             method: 'POST',
             url:"https://files.arrowheadgs.com/helldivers_api/default/",
-            data :'action=get_season_statistics',
-            params: {"season": season}
+            data :'action=get_season_statistics' + "&season=" + season
         });
     };
 });
@@ -242,7 +241,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
         return 30;
     };
 
-    /**fixed currentsSeason in getCampaign function. It gets the currentSeason**/
+    /**fixed currentsSeason in getCampaign function. It gets the currentSeason value**/
     dataService.getCampaign().then(function (response) {
 
         $scope.campaign = response.data;
@@ -279,11 +278,6 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                 //console.log(option);
                 element.add(option);
             }
-
-            /**
-             * this part of filtering is not used
-             * **/
         }
     }
-
 });
