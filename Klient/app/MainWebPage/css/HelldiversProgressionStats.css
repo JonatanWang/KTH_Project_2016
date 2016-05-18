@@ -1,0 +1,52 @@
+.imageHandler{
+    position: absolute;
+    height: 100%;
+    width:100%;
+    top: 0;
+    left:0;
+}
+.mainContainer{
+    position: absolute;
+    top:0;
+    left:0;
+    height: 100%;
+    width:100%;
+
+}
+#DivPosition{
+    position: absolute;
+    bottom: 0;
+    margin: 20px;
+    left: 35%;
+}
+.menuPosition{
+    position: absolute;
+    left: 150px;
+}
+#enemyStats{
+    position: absolute;
+    overflow: auto;
+    left:0.3%;
+    background: rgba(0,0,0,0.65);
+    top: 10%;
+    bottom: 10%;
+    width: 25%;
+    color: #bbbbbb;
+}
+#globalStats{
+    position: absolute;
+    overflow: auto;
+    right: 0.3%;
+    background: rgba(0,0,0,0.65);
+    top: 10%;
+    bottom: 50%;
+    width: 25%;
+    color: #bbbbbb;
+}
+#mapURL{
+    position: absolute;
+    height: 100%;
+    width:100%;
+    top: 0;
+    left:0;
+}

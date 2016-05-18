@@ -3,11 +3,13 @@ var enemyType = "global_stats"; // Teddy & Co, default drop down menu value
 var choosedSeason = 1;
 var currentSeason = 1;
 var flagg = false;
-var one,two;
-var timestamp=null;
-
-
+var mapImgBugs = "Images/helldivers_galcamp_progression/bug/helldivers_galcamp_progression_bug_";
+var mapImgCyborgs = "Images/helldivers_galcamp_progression/cyborg/helldivers_galcamp_progression_cyborg_";
+var mapImgIllu = "Images/helldivers_galcamp_progression/illuminate/helldivers_galcamp_progression_illuminate_";
+var IMGformat = ".png";
 var jsonData = null; // Teddy & Co, for filtering
+var APIURL1 = "https://api.helldiversgame.com/1.0/";
+var APIURL2 = "https://files.arrowheadgs.com/helldivers_api/default/" ;
 
 function evalSlider2() {
 
@@ -22,18 +24,6 @@ function evalSlider2() {
         sliderVal=integer+1;
         document.getElementById('sliderValue').innerHTML= sliderVal;
         float=0;
-    }
-}
-
-function isInt(number){
-
-    if(number % 1 == 0) {
-
-        return true;
-    }
-    else {
-
-        return false;
     }
 }
 
@@ -69,32 +59,27 @@ var app = angular.module('app', [], function ($httpProvider) {
     //Access-Control-Allow-Origin not needed anymore
 });
 
-
 app.service('dataService', function ($http) {
 
     this.getData = function (season, start, end) {
-
         /**
          * Teddy & Co modified following:
          */
         // $http() returns a $promise that we can add handlers with .then()
         return $http({
-
             method: 'POST',
-            url: 'https://files.arrowheadgs.com/helldivers_api/default/',
+            url: APIURL1,
             data : "action=get_snapshots" + "&season=" + season + "&start=" + start + "&end=" + end
         });
     };
 
     this.getCampaign = function () {
-
         /**
          * Teddy & Co modified following:
          */
-
         return $http({
             method: "POST",
-            url: 'https://files.arrowheadgs.com/helldivers_api/default/',
+            url: APIURL1,
             data :'action=get_campaign_status'
         });
     };
@@ -103,7 +88,7 @@ app.service('dataService', function ($http) {
     {
         return $http({
             method: 'POST',
-            url:"https://files.arrowheadgs.com/helldivers_api/default/",
+            url:APIURL1,
             data :'action=get_season_statistics' + "&season=" + season
         });
     };
@@ -142,29 +127,31 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
         var filterOption = document.getElementById('all').value;
         var season = document.getElementById('seasons').value;
         console.log(enemyType);
-        if(enemyType == "global_stats")
-        {
+        /**
+         * to get Region img :
+         * **/
+        $scope.getImagePath();
 
-                console.log(season);
-                dataService.getSeasonStatistics(season).then(function (dataResponse) {
-                    console.log("in get season stats");
-                    console.log(dataResponse.data);
-                   $scope.data = dataResponse.data;
-                });
-        }
-        else //this means that other than global i chosen
-        {
+        /**
+         * to get global stats:
+         * **/
+        dataService.getSeasonStatistics(season).then(function (dataResponse) {
+            $scope.globalData = dataResponse.data;
+        });
+
+        /**
+         * to get enemy stats:
+         * */
             dataService.getData(choosedSeason, sliderVal, sliderVal).then(function (dataResponse) {
                 jsonData = dataResponse;
-
 
                // console.log("allfilter=" + allFilter + "filterOption=" + filterOption);
                 console.log(filterOption);
                 //save data to var
                 var result = [];
                 //save data to var
-                var def_events = [];
                 var atta_events = [];
+                var def_events = [];
 
                 for(var i=0;i<dataResponse.data.defend_events.length;i++)
                 {
@@ -187,6 +174,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                         case "defend_events":
                             result = def_events;
                             console.log("in defend_events");
+                            
                             break;
                         case "attack_events":
                             result = atta_events;
@@ -200,27 +188,8 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
 
                 $scope.data = result;
             });
-        }
+
     };
-
-    function test(j, timestamp, nowtimestamp){
-        dataService.getData(choosedSeason, timestamp, nowtimestamp).then(function (dataResponse) {
-
-            // $scope.data = dataResponse;
-            if(j==0){
-                one=dataResponse.data.defend_events[0].points;
-          //      document.write("lol1: "+one);
-                timestamp-=3600000;
-            }
-            if(j==1){
-                two=dataResponse.data.defend_events[0].points;
-          //      document.write("One: "+one +" ,two :"+two +"<br />");
-          //      document.write(" FUNKAR: "+runLinear(sliderVal,one,two));
-            //    document.write("lol 2: "+two);
-            }
-        });
-
-    }
 
     $scope.getSeason = function () {
         dataService.getCampaign().then(function (dataResponse) {
@@ -279,5 +248,49 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                 element.add(option);
             }
         }
+    }
+
+    $scope.getImagePath = function(){
+
+        dataService.getSeasonStatistics(choosedSeason).then(function (dataResponse) {
+            var result;
+            console.log("succ=" + dataResponse.data.statistics[enemyType].successful_attack_events);
+            if(dataResponse.data.statistics[enemyType].successful_attack_events > 0)
+            {
+                console.log("in succAtta" );
+                result = "12";
+            }
+            else
+            {
+                result = dataResponse.data.statistics[enemyType].defend_events - dataResponse.data.statistics[enemyType].successful_defend_events;
+                if(result < 10)
+                {
+                    result = "0".concat(result);
+                }
+                console.log("result="+result);
+                console.log("enemytpe="+enemyType);
+            }
+
+
+            var URL;
+            switch(enemyType){
+                case "0":
+                    URL = mapImgBugs.concat(result, IMGformat);
+                    break;
+                case "1":
+                    URL = mapImgCyborgs.concat(result, IMGformat);
+                    break;
+                case "2":
+                    URL = mapImgIllu.concat(result, IMGformat);
+                    break;
+                default:
+                    console.log("gettImagePath in default")
+            }
+
+            //console.log("URL: "+URL);
+            var regionIMG = document.getElementById("mapURL");
+            regionIMG.src = URL;
+            //console.log("src=" + regionIMG.src);
+        });
     }
 });

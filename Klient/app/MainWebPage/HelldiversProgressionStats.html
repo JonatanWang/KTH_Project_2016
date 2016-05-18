@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Helldivers</title>
+    <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <script src="script/ProgressionMap.js"></script>
+    <script src="script/MainpageData.js"></script>
+    <script src="script/Calculation.js"></script>
+    <script src="script/LinearCalc.js"></script>
+    <link rel="stylesheet" href="css/HelldiversProgressionStats.css">
+</head>
+<body ng-app="app" ng-controller="WebApiCtrl">
+<div class="mainContainer">
+    <img class="imageHandler" src="Images/helldivers_galcamp_progression/helldivers_galcamp_progression_background.png">
+    <img id="mapURL"  >
+    <!--<img class="imageHandler" src="Images/helldivers_galcamp_progression/illuminate/helldivers_galcamp_progression_illuminate_01.png">
+    <img class="imageHandler" src="Images/helldivers_galcamp_progression/cyborg/helldivers_galcamp_progression_cyborg_01.png">
+    <img class="imageHandler" src="Images/helldivers_galcamp_progression/bug/helldivers_galcamp_progression_bug_01.png">
+    -->
+
+    <!--divison for stats: -->
+    <div id="globalStats">
+        {{globalData}}
+    </div>
+
+    <div id="enemyStats">
+        {{data}}
+    </div>
+
+    <!-- division for menu-->
+    <div id="DivPosition" >
+        <!-- divion for slider -->
+        <div>
+            <input style="width:500px;" type="range" id="rating" min="1" max="{{getEventSize()}}" value="{{defaultSlide()}}" step="0.01"
+                   onchange="angular.element(this).scope().camp();evalSlider2();" oninput="evalSlider2()"/>
+        </div>
+        <br/>
+        <!-- divion for the menu -->
+        <div class="menuPosition">
+            <select id="enemyType" name="Faction" data-value="bugs" onchange="angular.element(this).scope().camp()">
+                <option value="0">Bugs</option>
+                <option value="1">Cyborgs</option>
+                <option value="2">Illuminate</option>
+            </select>
+
+            <!-- För att få dropdown menyn att reagera korrekt i alla lägen, Teddy & Co -->
+            <select id="seasons"data-value="bugs" onmouseover="angular.element(this).scope().getSeason();" onchange="saveSeason();angular.element(this).scope().camp();">
+                <option value="">Season</option>
+            </select>
+
+            <!-- För att få dropdown menyn att reagera korrekt i alla lägen, Teddy & Co -->
+            <select id="all"data-value="global" onmouseover="angular.element(this).scope().filterData();" onchange="angular.element(this).scope().camp()">
+                <option value="">All</option>
+            </select>
+        </div>
+    </div>
+</div>
+</body>
+</html>
