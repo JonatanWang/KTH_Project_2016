@@ -59,6 +59,12 @@ var app = angular.module('app', [], function ($httpProvider) {
     //Access-Control-Allow-Origin not needed anymore
 });
 
+function calculate_region(points, points_max) {
+    var points_per_region = points_max / 10;
+    var region = Math.min(Math.max(Math.floor(points / points_per_region), 0), 10);
+    return region;
+}
+
 app.service('dataService', function ($http) {
 
     this.getData = function (season, start, end) {
@@ -157,7 +163,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                 {
                     if(enemyType == dataResponse.data.defend_events[i].enemy)
                     {
-                        console.log(dataResponse.data.defend_events[i]);
+                        //console.log(dataResponse.data.defend_events[i]);
                         def_events.push(dataResponse.data.defend_events[i]);
                     }
                 }
@@ -173,17 +179,17 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                     {
                         case "defend_events":
                             result = def_events;
-                            console.log("in defend_events");
+                            //console.log("in defend_events");
                             
                             break;
                         case "attack_events":
                             result = atta_events;
-                            console.log("in attack_events");
+                            //console.log("in attack_events");
                             break;
                         default:
                             result = def_events.concat(atta_events);
-                            console.log("in default");
-                            console.log(result);
+                            //console.log("in default");
+                            //console.log(result);
                     }
 
                 $scope.data = result;
@@ -233,10 +239,6 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
 
 
         var element = document.getElementById('all');
-        if(element.firstElementChild.nextElementSibling==null)
-        {
-            console.log("det är null");
-        }
 
         if(jsonData != null && element.firstElementChild.nextElementSibling==null)
         {
@@ -252,45 +254,58 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
 
     $scope.getImagePath = function(){
 
-        dataService.getSeasonStatistics(choosedSeason).then(function (dataResponse) {
-            var result;
-            console.log("succ=" + dataResponse.data.statistics[enemyType].successful_attack_events);
-            if(dataResponse.data.statistics[enemyType].successful_attack_events > 0)
-            {
-                console.log("in succAtta" );
-                result = "12";
-            }
-            else
-            {
-                result = dataResponse.data.statistics[enemyType].defend_events - dataResponse.data.statistics[enemyType].successful_defend_events;
-                if(result < 10)
-                {
-                    result = "0".concat(result);
+        var URL;
+        var success = 0;
+        var result;
+
+        console.log("succes=" + success);
+
+
+            dataService.getData(choosedSeason, null, null).then(function (dataResponse) {
+
+                if(success > 0){
+                    result = 12;
                 }
-                console.log("result="+result);
-                console.log("enemytpe="+enemyType);
-            }
+                else
+                {
+                    var points_max = dataResponse.data.points_max[enemyType];
+                    console.log("max_points=" + points_max);
+                    console.log("json stringfy=" + JSON.parse(dataResponse.data.snapshots[dataResponse.data.snapshots.length - 1].data)[enemyType].points);
 
+                    var points = JSON.parse(dataResponse.data.snapshots[dataResponse.data.snapshots.length - 1].data)[enemyType].points;
+                    console.log("antal dagar:" + dataResponse.data.snapshots.length);
+                    console.log("points=" + points);
+                    result = calculate_region(points, points_max) + 1;
+                    console.log("In getdata result=" + result);
 
-            var URL;
-            switch(enemyType){
-                case "0":
-                    URL = mapImgBugs.concat(result, IMGformat);
-                    break;
-                case "1":
-                    URL = mapImgCyborgs.concat(result, IMGformat);
-                    break;
-                case "2":
-                    URL = mapImgIllu.concat(result, IMGformat);
-                    break;
-                default:
-                    console.log("gettImagePath in default")
-            }
+                    if (result < 10)
+                    {
+                        result = "0".concat(result);
+                    }
+                }
+                console.log("Mresult=" + result);
 
-            //console.log("URL: "+URL);
-            var regionIMG = document.getElementById("mapURL");
-            regionIMG.src = URL;
-            //console.log("src=" + regionIMG.src);
-        });
-    }
+                switch(enemyType){
+                    case "0":
+                        URL = mapImgBugs.concat(result, IMGformat);
+                        break;
+                    case "1":
+                        URL = mapImgCyborgs.concat(result, IMGformat);
+                        break;
+                    case "2":
+                        URL = mapImgIllu.concat(result, IMGformat);
+                        break;
+                    default:
+                        console.log("gettImagePath in default")
+                }
+
+                //console.log("URL: "+URL);
+                var regionIMG = document.getElementById("mapURL");
+                console.log("result"+result);
+                regionIMG.src = URL;
+                console.log("src=" + regionIMG.src);
+
+            });
+    };
+
 });

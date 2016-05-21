@@ -25,6 +25,8 @@
     </div>
 
     <div id="enemyStats">
+        <div id="logo">
+        </div>
         {{data}}
     </div>
 
@@ -51,7 +53,10 @@
 
             <!-- För att få dropdown menyn att reagera korrekt i alla lägen, Teddy & Co -->
             <select id="all"data-value="global" onmouseover="angular.element(this).scope().filterData();" onchange="angular.element(this).scope().camp()">
-                <option value="">All</option>
+             <!--   <option value="">All</option> -->
+                <option value="All">All</option>
+                <option value="defend_events">Defend Events</option>
+                <option value="attack_events">Attack Events</option>
             </select>
         </div>
     </div>

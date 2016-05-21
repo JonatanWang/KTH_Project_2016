@@ -33,6 +33,11 @@
     width: 25%;
     color: #bbbbbb;
 }
+#logo{
+    background-image: url("../Images/log_background.png");
+    background-size: 100%;
+    background-repeat: no-repeat;
+}
 #globalStats{
     position: absolute;
     overflow: auto;
@@ -49,4 +54,13 @@
     width:100%;
     top: 0;
     left:0;
+}
+.tableStyle{
+    border-collapse: separate;
+    font-size: medium;
+    font-weight: bold;
+    position: absolute;
+    top:1%;
+    left:1%;
+    background: #353535;
 }
