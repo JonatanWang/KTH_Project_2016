@@ -25,7 +25,8 @@
 }
 #enemyStats{
     position: absolute;
-    overflow: auto;
+    overflow-x: auto;
+    overflow-y: auto;
     left:0.3%;
     background: rgba(0,0,0,0.65);
     top: 10%;
@@ -33,6 +34,16 @@
     width: 25%;
     color: #bbbbbb;
 }
+#newsfeed{
+
+}
+.newsfeedDayColumn{
+    width: 60px;
+}
+.newsfeedStringColumn{
+
+}
+
 #logo{
     background-image: url("../Images/log_background.png");
     background-size: 100%;

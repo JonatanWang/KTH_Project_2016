@@ -100,6 +100,22 @@ app.service('dataService', function ($http) {
     };
 });
 
+
+function insertionSortEvents(events) {
+
+    for(var i=1;i<events.length;i++)
+    {
+        var temp = events[i];
+        var tempIndex = i;
+        while(tempIndex > 0 && temp.end_time < events[tempIndex-1].end_time){
+            events[tempIndex] = events[tempIndex-1];
+            tempIndex--;
+        }
+        events[tempIndex] = temp;
+    }
+}
+
+
 app.controller("WebApiCtrl", function ($scope, dataService) {
 
     $scope.data = null;
@@ -193,6 +209,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                     }
 
                 $scope.data = result;
+                $scope.newsFeed(dataResponse);
             });
 
     };
@@ -270,7 +287,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                 {
                     var points_max = dataResponse.data.points_max[enemyType];
                     console.log("max_points=" + points_max);
-                    console.log("json stringfy=" + JSON.parse(dataResponse.data.snapshots[dataResponse.data.snapshots.length - 1].data)[enemyType].points);
+                    console.log("json stringfy=" + JSON.parse(dataResponse.data.snapshots[dataResponse.data.snapshots.length - 1].data)[enemyType].points );
 
                     var points = JSON.parse(dataResponse.data.snapshots[dataResponse.data.snapshots.length - 1].data)[enemyType].points;
                     console.log("antal dagar:" + dataResponse.data.snapshots.length);
@@ -306,6 +323,97 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                 console.log("src=" + regionIMG.src);
 
             });
+    };
+
+
+
+    $scope.newsFeed = function(gameData){
+
+
+        var currentTime = sliderVal;
+        var allDefendEvents = [];
+        var allAttackEvents = [];
+        var allEvents = [];
+        dataService.getData(choosedSeason, null, null).then(function(dataResponse){
+
+            for(var i=0;i<dataResponse.data.defend_events.length;i++)
+            {
+                allDefendEvents.push(dataResponse.data.defend_events[i]);
+            }
+            for(var i=0;i<dataResponse.data.attack_events.length;i++)
+            {
+                allAttackEvents.push(dataResponse.data.attack_events[i]);
+            }
+
+            allEvents = allAttackEvents.concat(allDefendEvents);
+
+            //
+            console.log("in newsFeed");
+            insertionSortEvents(allEvents);
+            console.log(allEvents);
+            //test -  to get all events into the newsfeed viewer
+            //counting days:
+            var firstDay;
+            if(dataResponse.data.snapshots != null)
+            {
+                firstDay = dataResponse.data.snapshots[0].time;
+                console.log("firstDay="+firstDay);
+                console.log("time="+ dataResponse.data.snapshots[1].time);
+            }
+
+            var newsfeedText = [];
+            for(var i=0;i<allEvents.length;i++)
+            {
+                //console.log("in for loop");
+                var datatext = [];
+                datatext.push("DAY " + Math.floor((allEvents[i].end_time - firstDay)/(60*60*24)));
+                if(allEvents[i].region)
+                {
+                   // console.log("event end time=" + allEvents[i].end_time);
+                    datatext.push("Region " + allEvents[i].region + " was attacked by " + allEvents[i].enemy +
+                        " and Helldivers " +  (allEvents[i].status == "success" ? "defended" : "got crushed"));
+                }
+                else
+                {
+                    console.log("in attak and day is:" + Math.floor((allEvents[i].end_time - firstDay)/(60*60*24)));
+                    datatext.push("Final assault on " + allEvents[i].enemy + " was a " +
+                        allEvents[i].status);
+                    console.log("attackEvent=" + allEvents[i]);
+                }
+                newsfeedText.push(datatext);
+
+            }
+            //console.log("text= " + newsfeedText.toString());
+
+
+
+
+
+
+            //text table
+            var table = document.getElementById("newsfeed");
+            while(table.rows.length > 0)
+            {
+                table.deleteRow(0);
+            }
+            while(newsfeedText.length > 0){
+                var tr = document.createElement("tr");
+                var td = document.createElement("td");
+                var td2 = document.createElement("td");
+                var newsrow = newsfeedText.shift();
+
+                td.appendChild(document.createTextNode(newsrow[0]));
+                td.className = "newsfeedDayColumn";
+                td2.appendChild(document.createTextNode(newsrow[1]));
+                td2.className = "newsfeedStringColumn";
+                tr.appendChild(td);
+                tr.appendChild(td2);
+                table.appendChild(tr);
+            }
+
+        });
+
+
     };
 
 });
