@@ -91,9 +91,6 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
         var seasonResult=getSeasonInfo(choosedSeason);  // returnerar information beroende av säsongen och dagen som skickas in
         var result= calculateLerp(seasonResult, sliderVal);
 
-        for(var counter=0;counter<t.length;counter++){
-            //document.writeln("i: "+i+ "  ,result[i]: "+result[i]);
-        }
     };
 
 
@@ -104,7 +101,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
         enemyType=document.getElementById('enemyType').value;
         var filterOption = document.getElementById('all').value;
         var season = document.getElementById('seasons').value;
-        console.log(enemyType);
+        //console.log(enemyType);
         /**
          * to get Region img :
          * **/
@@ -145,7 +142,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                     }
                 }*/
                 //save data to var end
-                    switch(filterOption)
+                    /*switch(filterOption)
                     {
                         case "defend_events":
                             result = getDefend_evArray();
@@ -160,10 +157,10 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                             result = def_events.concat(atta_events);
                             console.log("in default");
                             //console.log(result);
-                    }
+                    }*/
 
-                $scope.data = result;
-                $scope.newsFeed(dataResponse);
+                //$scope.data = result;
+                $scope.newsFeed();
 
 
     };
@@ -216,26 +213,35 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
     $scope.getImagePath = function(){
 
         var URL;
-        var success = 0;
         var result;
 
-        console.log("succes=" + success);
 
             var dataResponse = getSeasonInfo(choosedSeason);
+        var lastDay = dataResponse.length-1;
+        var attack_evets = getSeasonAttackEvents(choosedSeason);
 
-                if(success > 0){
+        console.log("***********start**********");
+        console.log("length= " + attack_evets.length);
+
+        console.log("***********end**********");
+            //array[dag][enemytype].
+                if(attack_evets[attack_evets.length-1] != null)
+                {
                     result = 12;
                 }
                 else
                 {
-                    var points_max = dataResponse.points_max[enemyType];
-
-                    var points = (dataResponse.snapshots[dataResponse.snapshots.length - 1])[enemyType].points;
-                    console.log("antal dagar:" + dataResponse.snapshots.length);
+                    var points_max = dataResponse[lastDay][enemyType].points_max;
+                    var points = dataResponse[lastDay][enemyType].points;
+                   // console.log("antal dagar:" + dataResponse.snapshots.length);
+                    console.log("***********start**********");
+                    //console.log("dataResponse" + dataResponse);
+                    console.log("last day = " + lastDay);
                     console.log("points=" + points);
+                    console.log("max points = "+points_max);
                     result = calculate_region(points, points_max) + 1;
                     console.log("In getdata result=" + result);
-
+                    console.log("**********end***********");
                     if (result < 10)
                     {
                         result = "0".concat(result);
@@ -267,12 +273,13 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
 
 
 
-    $scope.newsFeed = function(gameData){
+    $scope.newsFeed = function(){
 
         var currentTime = sliderVal;
         var dataResponse = getSeasonInfo(choosedSeason);
-        var allDefendEvents = getDefend_evArray();
-        var allAttackEvents = getAttack_evArray();
+
+        var allDefendEvents = getSeasonDefendEvents(choosedSeason);
+        var allAttackEvents = getSeasonAttackEvents(choosedSeason);
         var allEvents = [];
 
             allEvents = allAttackEvents.concat(allDefendEvents);
@@ -280,15 +287,15 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
             //
             console.log("in newsFeed");
             insertionSortEvents(allEvents);
-            console.log(allEvents);
+            //console.log(allEvents);
             //test -  to get all events into the newsfeed viewer
             //counting days:
             var firstDay;
-            if(dataResponse.snapshots != null)
+            if( dataResponse.length != 0)
             {
-                firstDay = dataResponse.snapshots[0].time;
+                firstDay = dataResponse[0][0].time;
                 console.log("firstDay="+firstDay);
-                console.log("time="+ dataResponse.snapshots[1].time);
+                //console.log("time="+ dataResponse.snapshots[1].time);
             }
             //chrono sort text for attack and def
             var newsfeedText = [];
@@ -312,10 +319,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                     console.log("attackEvent=" + allEvents[i]);
                 }
                 newsfeedText.push(datatext);
-
             }
-            //console.log("text= " + newsfeedText.toString());
-
 
             //text table
             var table = document.getElementById("newsfeed");
@@ -337,10 +341,6 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                 tr.appendChild(td2);
                 table.appendChild(tr);
             }
-
-
-
-
     };
 
 });

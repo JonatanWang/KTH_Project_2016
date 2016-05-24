@@ -50,7 +50,7 @@
             </select>
 
             <!-- För att få dropdown menyn att reagera korrekt i alla lägen, Teddy & Co -->
-            <select id="seasons"data-value="bugs" onchange="saveSeason();angular.element(this).scope().getInfoTest();">
+            <select id="seasons"data-value="bugs" onchange="saveSeason();angular.element(this).scope().getInfoTest();angular.element(this).scope().camp();">
                 <option value="">Season</option>
             </select>
 
