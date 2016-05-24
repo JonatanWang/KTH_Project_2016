@@ -1,46 +1,60 @@
 /**
- * Created by dani on 10/05/16.
+ * Created by Alican Bircan 
+ * Edited by Fadi Kamil & Dani Daryaweesh
  */
 
 var requestedTime, convertedTime;
-var startPoints, endPoints, difference, diffperhour;
-var text;
+var startPoints, endPoints;
 
-function run(reqTime, stPoints, enPoints){
+function main(reqTime, stPoints, enPoints){
 
-    //requestedTime = reqTime;
-    //startPoints = stPoints;
-    //endPoints = enPoints;
-    requestedTime = document.getElementById("lctime").value;
-    startPoints = document.getElementById("lcpoints1").value;
-    endPoints = document.getElementById("lcpoints2").value;
-    difference = endPoints - startPoints;
-    diffperhour = Math.round(difference/24);
-    getHours();
-    //return pointsAtRequestedTime();
-    pointsAtRequestedTime();
+    requestedTime = reqTime;
+    startPoints = stPoints;
+    endPoints = enPoints;
+  
+    //ent.writeln("requ: "+requestedTime+" ,start: "+startPoints+" ,end: "+endPoints);
+  
+    getT();
+
+    return lerp(startPoints, endPoints, convertedTime);
 }
 
-function getHours(){
+function getT(){
 
-    var rTime = requestedTime | 0;
-    var mod = Math.round((requestedTime % rTime) * 100);
-    convertedTime = mod;
+    var rTime = Math.floor(requestedTime);
+    convertedTime = requestedTime - rTime;
+    convertedTime = Math.ceil(convertedTime * 100) / 100;
 }
 
-function pointsAtRequestedTime(){
+function lerp(a, b, t) {
+    var x = a + t * (b - a);
+    return x;
+}
 
-    var points = 0;
-    var i;
+/*
+ returnerar ett array resultat där enemy0-2 och sista är globalstats!
+ */
+function calculateLerp(res, sliderValue){
+    var tmpSlider= sliderVal, points_taken=null, globalStats=null;
+    var lerpResult=[];
 
-    for(i = 0; i < convertedTime; i++){
-
-        points += diffperhour;
+    if(sliderVal % 1 !=0 && sliderVal!=0){
+        tmpSlider = sliderValue | 0;
+        tmpSlider++;
     }
 
-    document.getElementById("linetext").innerHTML = parseInt(points) + parseInt(startPoints);
-    document.getElementById("linetime").innerHTML = requestedTime;
-    document.getElementById("linestart").innerHTML = startPoints;
-    document.getElementById("lineend").innerHTML = endPoints;
-    //return points + startPoints;
+    for(var day=0;day<res[day].length;day++){
+        lerpResult[day] = res[tmpSlider][day].points_taken;
+        globalStats+= res[tmpSlider][day].points_taken;
+
+        if(day == res[day].length-1){
+            lerpResult[lerpResult.length]=globalStats;
+        }
+    }
+
+    for(var lerp=0;lerp<lerpResult.length;lerp++){
+        lerpResult[lerp] = main(sliderVal, 0, lerpResult[lerp]);
+    }
+
+    return lerpResult;
 }

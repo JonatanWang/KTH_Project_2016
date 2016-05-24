@@ -8,6 +8,7 @@
     <script src="script/MainpageData.js"></script>
     <script src="script/Calculation.js"></script>
     <script src="script/LinearCalc.js"></script>
+    <script src="script/ExtractAllData.js"></script>
     <link rel="stylesheet" href="css/HelldiversProgressionStats.css">
 </head>
 <body ng-app="app" ng-controller="WebApiCtrl">
@@ -49,7 +50,7 @@
             </select>
 
             <!-- För att få dropdown menyn att reagera korrekt i alla lägen, Teddy & Co -->
-            <select id="seasons"data-value="bugs" onmouseover="angular.element(this).scope().getSeason();" onchange="saveSeason();angular.element(this).scope().camp();">
+            <select id="seasons"data-value="bugs" onchange="saveSeason();angular.element(this).scope().getInfoTest();">
                 <option value="">Season</option>
             </select>
 

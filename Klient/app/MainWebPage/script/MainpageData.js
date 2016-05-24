@@ -19,7 +19,7 @@ function evalSlider2() {
     var integer = sliderVal | 0;
     var float=sliderVal%integer;
 
-    if(float > 0.23){
+    if(float > 0.99){
 
         sliderVal=integer+1;
         document.getElementById('sliderValue').innerHTML= sliderVal;
@@ -49,56 +49,17 @@ function createSelectOptions() {
 function saveSeason() {
     choosedSeason = document.getElementById('seasons').value;
 }
+/**
+ * app2 should be named an other name.
+* **/
+var app = angular.module('app', ['app2']);
 
-var app = angular.module('app', [], function ($httpProvider) {
-
-    /**
-     * Teddy & Co modified following:
-     */
-    $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded; charset=UTF-8';
-    //Access-Control-Allow-Origin not needed anymore
-});
 
 function calculate_region(points, points_max) {
     var points_per_region = points_max / 10;
     var region = Math.min(Math.max(Math.floor(points / points_per_region), 0), 10);
     return region;
 }
-
-app.service('dataService', function ($http) {
-
-    this.getData = function (season, start, end) {
-        /**
-         * Teddy & Co modified following:
-         */
-        // $http() returns a $promise that we can add handlers with .then()
-        return $http({
-            method: 'POST',
-            url: APIURL1,
-            data : "action=get_snapshots" + "&season=" + season + "&start=" + start + "&end=" + end
-        });
-    };
-
-    this.getCampaign = function () {
-        /**
-         * Teddy & Co modified following:
-         */
-        return $http({
-            method: "POST",
-            url: APIURL1,
-            data :'action=get_campaign_status'
-        });
-    };
-
-    this.getSeasonStatistics = function(season)
-    {
-        return $http({
-            method: 'POST',
-            url:APIURL1,
-            data :'action=get_season_statistics' + "&season=" + season
-        });
-    };
-});
 
 
 function insertionSortEvents(events) {
@@ -120,26 +81,21 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
 
     $scope.data = null;
 
-
-    dataService.getData(choosedSeason, sliderVal, sliderVal).then(function (dataResponse) {
-        $scope.data = dataResponse;
-    });
-
-    $scope.getSnaps = function () {
-
-        dataService.getData(choosedSeason, sliderVal, sliderVal).then(function (dataResponse) {
-            $scope.data = dataResponse;
-        });
+    // Ändrar dynamisk storleken på slidern beroende av den valda säsongen
+    $scope.getEventSize = function () {
+        $scope.len=sliderlength;
+        return $scope.len;
     };
 
-    /**
-     * Teddy & Co modified:
-     */
-    $scope.evalSlider = function () {
-        dataService.getData(choosedSeason, sliderVal, sliderVal).then(function (dataResponse) {
-            $scope.data = dataResponse;
-        });
+    $scope.getInfoTest=function () {
+        var seasonResult=getSeasonInfo(choosedSeason);  // returnerar information beroende av säsongen och dagen som skickas in
+        var result= calculateLerp(seasonResult, sliderVal);
+
+        for(var counter=0;counter<t.length;counter++){
+            //document.writeln("i: "+i+ "  ,result[i]: "+result[i]);
+        }
     };
+
 
     /**
      * Teddy & Co modified:
@@ -157,15 +113,13 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
         /**
          * to get global stats:
          * **/
-        dataService.getSeasonStatistics(season).then(function (dataResponse) {
-            $scope.globalData = dataResponse.data;
-        });
+
 
         /**
          * to get enemy stats:
          * */
-            dataService.getData(choosedSeason, sliderVal, sliderVal).then(function (dataResponse) {
-                jsonData = dataResponse;
+
+                /*var dataResponse = getSeasonDay(choosedSeason, sliderVal);
 
                // console.log("allfilter=" + allFilter + "filterOption=" + filterOption);
                 console.log(filterOption);
@@ -189,39 +143,29 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                     {
                         atta_events.push(dataResponse.data.attack_events[i]);
                     }
-                }
+                }*/
                 //save data to var end
                     switch(filterOption)
                     {
                         case "defend_events":
-                            result = def_events;
+                            result = getDefend_evArray();
                             //console.log("in defend_events");
                             
                             break;
                         case "attack_events":
-                            result = atta_events;
+                            result = getAttack_evArray();
                             //console.log("in attack_events");
                             break;
                         default:
                             result = def_events.concat(atta_events);
-                            //console.log("in default");
+                            console.log("in default");
                             //console.log(result);
                     }
 
                 $scope.data = result;
                 $scope.newsFeed(dataResponse);
-            });
 
-    };
 
-    $scope.getSeason = function () {
-        dataService.getCampaign().then(function (dataResponse) {
-            $scope.trubble = dataResponse;
-            currentSeason = dataResponse.data.campaign_status[1].season;
-            createSelectOptions();
-            run(dataResponse.data.statistics);
-            $scope.calculation=getCalculations();
-        });
     };
 
     $scope.defaultSlide = function () {
@@ -277,20 +221,17 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
 
         console.log("succes=" + success);
 
-
-            dataService.getData(choosedSeason, null, null).then(function (dataResponse) {
+            var dataResponse = getSeasonInfo(choosedSeason);
 
                 if(success > 0){
                     result = 12;
                 }
                 else
                 {
-                    var points_max = dataResponse.data.points_max[enemyType];
-                    console.log("max_points=" + points_max);
-                    console.log("json stringfy=" + JSON.parse(dataResponse.data.snapshots[dataResponse.data.snapshots.length - 1].data)[enemyType].points );
+                    var points_max = dataResponse.points_max[enemyType];
 
-                    var points = JSON.parse(dataResponse.data.snapshots[dataResponse.data.snapshots.length - 1].data)[enemyType].points;
-                    console.log("antal dagar:" + dataResponse.data.snapshots.length);
+                    var points = (dataResponse.snapshots[dataResponse.snapshots.length - 1])[enemyType].points;
+                    console.log("antal dagar:" + dataResponse.snapshots.length);
                     console.log("points=" + points);
                     result = calculate_region(points, points_max) + 1;
                     console.log("In getdata result=" + result);
@@ -322,28 +263,17 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                 regionIMG.src = URL;
                 console.log("src=" + regionIMG.src);
 
-            });
     };
 
 
 
     $scope.newsFeed = function(gameData){
 
-
         var currentTime = sliderVal;
-        var allDefendEvents = [];
-        var allAttackEvents = [];
+        var dataResponse = getSeasonInfo(choosedSeason);
+        var allDefendEvents = getDefend_evArray();
+        var allAttackEvents = getAttack_evArray();
         var allEvents = [];
-        dataService.getData(choosedSeason, null, null).then(function(dataResponse){
-
-            for(var i=0;i<dataResponse.data.defend_events.length;i++)
-            {
-                allDefendEvents.push(dataResponse.data.defend_events[i]);
-            }
-            for(var i=0;i<dataResponse.data.attack_events.length;i++)
-            {
-                allAttackEvents.push(dataResponse.data.attack_events[i]);
-            }
 
             allEvents = allAttackEvents.concat(allDefendEvents);
 
@@ -354,22 +284,23 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
             //test -  to get all events into the newsfeed viewer
             //counting days:
             var firstDay;
-            if(dataResponse.data.snapshots != null)
+            if(dataResponse.snapshots != null)
             {
-                firstDay = dataResponse.data.snapshots[0].time;
+                firstDay = dataResponse.snapshots[0].time;
                 console.log("firstDay="+firstDay);
-                console.log("time="+ dataResponse.data.snapshots[1].time);
+                console.log("time="+ dataResponse.snapshots[1].time);
             }
-
+            //chrono sort text for attack and def
             var newsfeedText = [];
+
             for(var i=0;i<allEvents.length;i++)
             {
                 //console.log("in for loop");
                 var datatext = [];
                 datatext.push("DAY " + Math.floor((allEvents[i].end_time - firstDay)/(60*60*24)));
-                if(allEvents[i].region)
+                if(allEvents[i].region)//waiting for file
                 {
-                   // console.log("event end time=" + allEvents[i].end_time);
+                   //console.log("event end time=" + allEvents[i].end_time);
                     datatext.push("Region " + allEvents[i].region + " was attacked by " + allEvents[i].enemy +
                         " and Helldivers " +  (allEvents[i].status == "success" ? "defended" : "got crushed"));
                 }
@@ -384,10 +315,6 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
 
             }
             //console.log("text= " + newsfeedText.toString());
-
-
-
-
 
 
             //text table
@@ -411,7 +338,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                 table.appendChild(tr);
             }
 
-        });
+
 
 
     };
