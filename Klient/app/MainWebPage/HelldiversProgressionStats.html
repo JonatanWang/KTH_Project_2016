@@ -41,8 +41,8 @@
                 <label>Day: </label>
                 <output id="sliderValue"></output>
             </p>
-            <input style="width:500px;" type="range" id="slider" min="1" max="{{setEventSize()}}" value="{{defaultSlide()}}" step="0.01"
-                   onchange="evalSlider2();" oninput="evalSlider2()"/>
+            <input style="width:500px;" type="range" id="slider" min="{{defaultSlide()}}" max="{{setEventSize()}}" value="{{defaultSlide()}}" step="0.01"
+                   onchange="evalSlider2();angular.element(this).scope().newsFeed();" oninput="evalSlider2()"/>
         </div>
         <br/>
         <!-- divion for the menu -->

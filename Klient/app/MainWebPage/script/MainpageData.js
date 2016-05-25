@@ -1,4 +1,4 @@
-var sliderVal = 1;
+var sliderVal = 0;
 var enemyType = "global_stats"; // Teddy & Co, default drop down menu value
 var choosedSeason = 1;
 var currentSeason = 1;
@@ -83,17 +83,20 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
 
     // Ändrar dynamisk storleken på slidern beroende av den valda säsongen
     $scope.setEventSize = function () {
-        console.log("choosedSeason before="+choosedSeason);
         document.getElementById('slider').max = getLatestDayInSeason(choosedSeason);
-        console.log("choosedSeason after="+choosedSeason);
     };
 
     $scope.resetSlider = function() {
-        var defaultValue = 1;
+        var defaultValue = 0;
         document.getElementById('slider').value = defaultValue;
         document.getElementById('sliderValue').innerHTML = defaultValue;
         $scope.setEventSize();
     }
+
+    $scope.defaultSlide = function () {
+        //
+        return 0;
+    };
 
     $scope.getInfoTest=function () {
         var seasonResult=getSeasonInfo(choosedSeason);  // returnerar information beroende av säsongen och dagen som skickas in
@@ -122,9 +125,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                 $scope.newsFeed();
     };
 
-    $scope.defaultSlide = function () {
-        return 1;
-    };
+
 
     /**fixed currentsSeason in getCampaign function. It gets the currentSeason value**/
     dataService.getCampaign().then(function (response) {
@@ -167,21 +168,36 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
         var result;
 
 
-            var dataResponse = getSeasonInfo(choosedSeason);
+        var dataResponse = getSeasonInfo(choosedSeason);
         var lastDay = dataResponse.length-1;
-        var attack_evets = getSeasonAttackEvents(choosedSeason);
 
-                if(attack_evets[attack_evets.length-1] != null)
+        var attack_events = getAttackEvents2(choosedSeason,enemyType);
+        var AttackEventsEmpty = true;
+        var firstDayTime;
+        var attack_eventDay;
+
+        //security
+        if(attack_events != null)
+        {
+            AttackEventsEmpty = false;
+             firstDayTime = getStartTimeInSeason(choosedSeason);
+             attack_eventDay = Math.floor((attack_events[attack_events.length-1].end_time - firstDayTime)/(60*60*24))
+        }
+
+                if(!AttackEventsEmpty && attack_eventDay <= sliderVal && attack_events[attack_events.length-1].status == "success")
                 {
                     result = 12;
                 }
                 else
                 {
-                    var points_max = dataResponse[lastDay][enemyType].points_max;
-                    var points = dataResponse[lastDay][enemyType].points;
+                    //
+                    var snapshotsCurrentSeason = getSnapshotsInSeason(choosedSeason);
+                    var points = (JSON.parse(snapshotsCurrentSeason[Math.floor(sliderVal)].data[enemyType])).points;
+                    var points_max = snapshotsCurrentSeason.points_max[enemyType];
+                    //var points = dataResponse[Math.floor(sliderVal)][enemyType].points;
 
                     result = calculate_region(points, points_max) + 1;
-
+                    console.log("result="+result);
                     if (result < 10)
                     {
                         result = "0".concat(result);
@@ -210,35 +226,35 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
     };
 
 
-
     $scope.newsFeed = function(){
 
-        var currentTime = sliderVal;
         var dataResponse = getSeasonInfo(choosedSeason);
 
         var allDefendEvents = getSeasonDefendEvents(choosedSeason);
         var allAttackEvents = getSeasonAttackEvents(choosedSeason);
+        //
         var allEvents = [];
 
-            allEvents = allAttackEvents.concat(allDefendEvents);
-
+        allEvents = allAttackEvents.concat(allDefendEvents);
             //
             insertionSortEvents(allEvents);
 
             //test -  to get all events into the newsfeed viewer
             //counting days:
-            var firstDay;
-            if( dataResponse.length != 0)
-            {
-                firstDay = dataResponse[0][0].time;
-            }
+            var firstDay = getStartTimeInSeason(choosedSeason);
+
             //chrono sort text for attack and def
             var newsfeedText = [];
 
             for(var i=0;i<allEvents.length;i++)
             {
+
                 var datatext = [];
-                datatext.push("DAY " + Math.floor((allEvents[i].end_time - firstDay)/(60*60*24)));
+
+                var day = Math.floor((allEvents[i].end_time - firstDay)/(60*60*24));
+                // datatext[0] = "DAY x"
+                datatext.push("DAY " + day);
+                //datatext[1] = "Region..." || "Final..."
                 if(allEvents[i].region)//waiting for file
                 {
                     datatext.push("Region " + allEvents[i].region + " was attacked by " + allEvents[i].enemy +
@@ -249,6 +265,8 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                     datatext.push("Final assault on " + allEvents[i].enemy + " was a " +
                         allEvents[i].status);
                 }
+                //datatext[2] = day;
+                datatext.push(day);
                 newsfeedText.push(datatext);
             }
 
@@ -258,11 +276,16 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
             {
                 table.deleteRow(0);
             }
-            while(newsfeedText.length > 0){
+
+
+
+            while(newsfeedText.length > 0 && (newsfeedText[0])[2] <= sliderVal){
                 var tr = document.createElement("tr");
                 var td = document.createElement("td");
                 var td2 = document.createElement("td");
                 var newsrow = newsfeedText.shift();
+
+
 
                 td.appendChild(document.createTextNode(newsrow[0]));
                 td.className = "newsfeedDayColumn";

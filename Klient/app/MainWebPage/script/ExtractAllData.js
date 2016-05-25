@@ -11,8 +11,80 @@ var defend_ev=[], defend_ev_season=[];
 var attack_ev=[], attack_ev_season=[];
 
 
+
+
+/**
+
+ * **/
+var allSeasons = []; // has every season data 1-current season
+var allAttackEvents = [];
+var allDefendEvents = [];
+/**
+ * **/
+
+
+function getSnapshotsInSeason(season)
+{
+    return allSeasons[season-1].snapshots;
+}
+
+function getAttackEvents2(season, enemytype)
+{
+    if(enemytype != null)
+    {
+
+        var attackEventsForEnemy = [];
+        console.log("allAttackEvents = "+allAttackEvents[season]);
+        for(var i=0;i<allAttackEvents[season].length;i++)
+        {
+            if((allAttackEvents[season])[i].enemy == enemytype)
+            {
+                attackEventsForEnemy.push((allAttackEvents[season])[i]);
+            }
+        }
+        return attackEventsForEnemy;
+    }
+    else
+    {
+        //return attack evetn for all enemy
+        return allAttackEvents[season];
+    }
+}
+
+function getDefendEvents2(season, enemytype)
+{
+    if(enemytype != null)
+    {
+        var defendEventsForEnemy = [];
+        for(var i=0;i<allDefendEvents[season].length;i++)
+        {
+            if((allDefendEvents[season])[i].enemy == enemytype)
+            {
+                defendEventsForEnemy.push((allDefendEvents[season])[i]);
+            }
+        }
+        return defendEventsForEnemy;
+    }
+    else
+    {
+        //return attack evetn for all enemy
+        return allAttackEvents[season];
+    }
+}
+
 function getLatestSeason(){
     return latestSeason;
+}
+
+function getStartTimeInSeason(season)
+{
+    var dataResponse = getSeasonInfo(season);
+    if( dataResponse.length != 0)
+    {
+        return dataResponse[0][0].time;
+    }
+
+    return null;
 }
 
 function getLatestDayInSeason(season){
@@ -28,11 +100,24 @@ function getLatestDayInSeason(season){
 
 function extractEverything(JsonObj){
 
+    allSeasons.push(JsonObj);
+    if(JsonObj.data.attack_events === 'undefined')
+    {
+        console.log("attackEvent is undefined");
+        allAttackEvents.push(null);
+    }
+    else
+    {
+        //console.log("attackEvent is not null");
+        allAttackEvents.push(JsonObj.data.attack_events);
+    }
+
+    allDefendEvents.push(JsonObj.data.defend_events);
+
 
 
     getSnapshots(JsonObj.data.snapshots, seasons.length, JsonObj.data.points_max);
     getDefendEvents(JsonObj.data.defend_events, defend_ev.length);
-
     getAttackEvents(JsonObj.data.attack_events, attack_ev.length);
 }
 
@@ -92,7 +177,6 @@ initialize = function (dataService){
             dataService.getSnapshots(i,null,null).then(function (dataResponse) { // skickar in och sparar
 
                 extractEverything(dataResponse);
-
             });
         }
 
