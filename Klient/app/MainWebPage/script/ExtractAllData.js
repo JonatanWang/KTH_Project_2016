@@ -11,6 +11,20 @@ var defend_ev=[], defend_ev_season=[];
 var attack_ev=[], attack_ev_season=[];
 
 
+function getLatestSeason(){
+    return latestSeason;
+}
+
+function getLatestDayInSeason(season){
+    var tempSeasonInfo = getSeasonInfo(season);
+    
+    if(tempSeasonInfo != null)
+    {
+        return tempSeasonInfo.length;
+    }
+
+    return null;
+}
 
 function extractEverything(JsonObj){
     //console.log("seasons length"+seasons.length);
