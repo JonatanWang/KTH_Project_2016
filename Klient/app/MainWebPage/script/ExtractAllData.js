@@ -17,7 +17,7 @@ function getLatestSeason(){
 
 function getLatestDayInSeason(season){
     var tempSeasonInfo = getSeasonInfo(season);
-    
+    //earlier season can get an extra day error.
     if(tempSeasonInfo != null)
     {
         return tempSeasonInfo.length;
@@ -27,14 +27,11 @@ function getLatestDayInSeason(season){
 }
 
 function extractEverything(JsonObj){
-    //console.log("seasons length"+seasons.length);
 
-    console.log("JSon attack_def = " + JsonObj);
+
 
     getSnapshots(JsonObj.data.snapshots, seasons.length, JsonObj.data.points_max);
-    //console.log("JSon def_events = " + JsonObj.data.defend_events[0]);
     getDefendEvents(JsonObj.data.defend_events, defend_ev.length);
-    //console.log("JSon attack_ = " + JsonObj.data.attack_events[0]);7
 
     getAttackEvents(JsonObj.data.attack_events, attack_ev.length);
 }
@@ -49,8 +46,6 @@ var app2 = angular.module('app2', [], function ($httpProvider) {
     //Access-Control-Allow-Origin not needed anymore
 }).run(function(dataService){
     initialize(dataService);
-    console.log("latestseason= " + latestSeason);
-    console.log("after app2 init ");
 });
 
 app2.service('dataService', function ($http) {
@@ -90,16 +85,14 @@ app2.service('dataService', function ($http) {
 });
 
 initialize = function (dataService){
-    console.log("in initialize app2");
     dataService.getCampaign().then(function(dataResponse){
         latestSeason = dataResponse.data.campaign_status[0].season;
-        console.log("current season = " +latestSeason);
 
         for(var i=1;i<=latestSeason;i++){ // loppar igenom det och hämtar statistiken för varje säsong
             dataService.getSnapshots(i,null,null).then(function (dataResponse) { // skickar in och sparar
-                console.log(dataResponse.data);
+
                 extractEverything(dataResponse);
-                //console.log("in snaps for loop = " +dataResponse.data.time);
+
             });
         }
 
@@ -123,7 +116,6 @@ function getSnapshots(snapObject, currentSeasonLength, pointsMaxObj){
 
             var extract=JSON.parse(snapObject[counter].data);
             seasons[counter+currentSeasonLength]= new Array(extract.length);
-            //console.log("in getSnapshots, seasons = " + seasons);
             for(var extractCount=0;extractCount<extract.length;extractCount++){ // antal data
                 seasons[counter+currentSeasonLength][extractCount]={
                     points_max: pointsMaxObj[extractCount],
@@ -134,7 +126,6 @@ function getSnapshots(snapObject, currentSeasonLength, pointsMaxObj){
                     status: extract[extractCount].status
                 };
             }
-            //console.log("in getSnapshots after for loop, seasons = " + seasons);
         }
 
     }
@@ -187,7 +178,6 @@ function getDefendEvents(defendObject, currentDefenseLength){
 function getAttackEvents(attackObject, currentAttackLength){
     if(attackObject != null)
     {
-        console.log("in getAttackEvents : " + attackObject[0]);
         var globalSeason=attackObject[0].season;
         for(var counter=0;counter<attackObject.length;counter++){
             attack_ev [counter+currentAttackLength]={
@@ -237,8 +227,6 @@ function getAttack_evArray(){
 2. resultatet som returneras: möjligheten att välja dag och enemytyp [dag (beroende av hur lång en säsong är 0 -x )] [enemytyp (0-2 max)]
  */
 function getSeasonInfo(season){
-    //console.log("in getSeasonInfo, seasonLengths = "+seasonsLengths[season]);
-    //console.log("in getSeaonInfo, seasons= "+seasons);
     var start= seasonsLengths[season].start;
     var end = seasonsLengths[season].end;
     var result=[];
@@ -251,7 +239,7 @@ function getSeasonInfo(season){
 
         for(var yCount=0;yCount<seasons[xCount].length;yCount++){
             result[tmpCounter][yCount]=seasons[startTmp][yCount];
-            console.log("seasons length: "+seasons[startTmp][yCount].season);
+
         }
         startTmp++;
         tmpCounter++;
@@ -299,9 +287,9 @@ function getSeasonDefendEvents(season){
 1. returnerar alla attack_events för en specifik säsong
  */
 function getSeasonAttackEvents(season){
-    //console.log("in getattack... "+attack_ev_season.length);
+
     var result=[], resultCounter=0;
-    console.log("attack_ev= "+attack_ev_season[season]);
+
     if(attack_ev_season[season] != null)
     {
         var start = attack_ev_season[season].start;

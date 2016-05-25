@@ -13,7 +13,7 @@ var APIURL2 = "https://files.arrowheadgs.com/helldivers_api/default/" ;
 
 function evalSlider2() {
 
-    sliderVal = document.getElementById('rating').value;
+    sliderVal = document.getElementById('slider').value;
     document.getElementById('sliderValue').innerHTML = sliderVal;
 
     var integer = sliderVal | 0;
@@ -82,10 +82,18 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
     $scope.data = null;
 
     // Ändrar dynamisk storleken på slidern beroende av den valda säsongen
-    $scope.getEventSize = function () {
-        $scope.len=sliderlength;
-        return $scope.len;
+    $scope.setEventSize = function () {
+        console.log("choosedSeason before="+choosedSeason);
+        document.getElementById('slider').max = getLatestDayInSeason(choosedSeason);
+        console.log("choosedSeason after="+choosedSeason);
     };
+
+    $scope.resetSlider = function() {
+        var defaultValue = 1;
+        document.getElementById('slider').value = defaultValue;
+        document.getElementById('sliderValue').innerHTML = defaultValue;
+        $scope.setEventSize();
+    }
 
     $scope.getInfoTest=function () {
         var seasonResult=getSeasonInfo(choosedSeason);  // returnerar information beroende av säsongen och dagen som skickas in
@@ -99,79 +107,23 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
      */
     $scope.camp = function () {
         enemyType=document.getElementById('enemyType').value;
-        var filterOption = document.getElementById('all').value;
-        var season = document.getElementById('seasons').value;
-        //console.log(enemyType);
+
         /**
          * to get Region img :
          * **/
         $scope.getImagePath();
-
         /**
          * to get global stats:
          * **/
 
-
         /**
          * to get enemy stats:
          * */
-
-                /*var dataResponse = getSeasonDay(choosedSeason, sliderVal);
-
-               // console.log("allfilter=" + allFilter + "filterOption=" + filterOption);
-                console.log(filterOption);
-                //save data to var
-                var result = [];
-                //save data to var
-                var atta_events = [];
-                var def_events = [];
-
-                for(var i=0;i<dataResponse.data.defend_events.length;i++)
-                {
-                    if(enemyType == dataResponse.data.defend_events[i].enemy)
-                    {
-                        //console.log(dataResponse.data.defend_events[i]);
-                        def_events.push(dataResponse.data.defend_events[i]);
-                    }
-                }
-                for(var i=0;i<dataResponse.data.attack_events.length;i++)
-                {
-                    if(enemyType == dataResponse.data.attack_events[i].enemy)
-                    {
-                        atta_events.push(dataResponse.data.attack_events[i]);
-                    }
-                }*/
-                //save data to var end
-                    /*switch(filterOption)
-                    {
-                        case "defend_events":
-                            result = getDefend_evArray();
-                            //console.log("in defend_events");
-                            
-                            break;
-                        case "attack_events":
-                            result = getAttack_evArray();
-                            //console.log("in attack_events");
-                            break;
-                        default:
-                            result = def_events.concat(atta_events);
-                            console.log("in default");
-                            //console.log(result);
-                    }*/
-
-                //$scope.data = result;
                 $scope.newsFeed();
-
-
     };
 
     $scope.defaultSlide = function () {
         return 1;
-    };
-
-    // möjliggöra dynamisk ändring --> kommer att användas senare
-    $scope.getEventSize = function () {
-        return 30;
     };
 
     /**fixed currentsSeason in getCampaign function. It gets the currentSeason value**/
@@ -204,7 +156,6 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
             {
                 var option = document.createElement("option");
                 option.text = datafiltered;
-                //console.log(option);
                 element.add(option);
             }
         }
@@ -220,11 +171,6 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
         var lastDay = dataResponse.length-1;
         var attack_evets = getSeasonAttackEvents(choosedSeason);
 
-        console.log("***********start**********");
-        console.log("length= " + attack_evets.length);
-
-        console.log("***********end**********");
-            //array[dag][enemytype].
                 if(attack_evets[attack_evets.length-1] != null)
                 {
                     result = 12;
@@ -233,21 +179,14 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                 {
                     var points_max = dataResponse[lastDay][enemyType].points_max;
                     var points = dataResponse[lastDay][enemyType].points;
-                   // console.log("antal dagar:" + dataResponse.snapshots.length);
-                    console.log("***********start**********");
-                    //console.log("dataResponse" + dataResponse);
-                    console.log("last day = " + lastDay);
-                    console.log("points=" + points);
-                    console.log("max points = "+points_max);
+
                     result = calculate_region(points, points_max) + 1;
-                    console.log("In getdata result=" + result);
-                    console.log("**********end***********");
+
                     if (result < 10)
                     {
                         result = "0".concat(result);
                     }
                 }
-                console.log("Mresult=" + result);
 
                 switch(enemyType){
                     case "0":
@@ -263,11 +202,10 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                         console.log("gettImagePath in default")
                 }
 
-                //console.log("URL: "+URL);
+
                 var regionIMG = document.getElementById("mapURL");
-                console.log("result"+result);
+
                 regionIMG.src = URL;
-                console.log("src=" + regionIMG.src);
 
     };
 
@@ -285,38 +223,31 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
             allEvents = allAttackEvents.concat(allDefendEvents);
 
             //
-            console.log("in newsFeed");
             insertionSortEvents(allEvents);
-            //console.log(allEvents);
+
             //test -  to get all events into the newsfeed viewer
             //counting days:
             var firstDay;
             if( dataResponse.length != 0)
             {
                 firstDay = dataResponse[0][0].time;
-                console.log("firstDay="+firstDay);
-                //console.log("time="+ dataResponse.snapshots[1].time);
             }
             //chrono sort text for attack and def
             var newsfeedText = [];
 
             for(var i=0;i<allEvents.length;i++)
             {
-                //console.log("in for loop");
                 var datatext = [];
                 datatext.push("DAY " + Math.floor((allEvents[i].end_time - firstDay)/(60*60*24)));
                 if(allEvents[i].region)//waiting for file
                 {
-                   //console.log("event end time=" + allEvents[i].end_time);
                     datatext.push("Region " + allEvents[i].region + " was attacked by " + allEvents[i].enemy +
                         " and Helldivers " +  (allEvents[i].status == "success" ? "defended" : "got crushed"));
                 }
                 else
                 {
-                    console.log("in attak and day is:" + Math.floor((allEvents[i].end_time - firstDay)/(60*60*24)));
                     datatext.push("Final assault on " + allEvents[i].enemy + " was a " +
                         allEvents[i].status);
-                    console.log("attackEvent=" + allEvents[i]);
                 }
                 newsfeedText.push(datatext);
             }

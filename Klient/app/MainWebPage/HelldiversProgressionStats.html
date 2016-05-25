@@ -41,8 +41,8 @@
                 <label>Day: </label>
                 <output id="sliderValue"></output>
             </p>
-            <input style="width:500px;" type="range" id="slider" min="1" max="{{getEventSize()}}" value="{{defaultSlide()}}" step="0.01"
-                   onchange="angular.element(this).scope().camp();evalSlider2();" oninput="evalSlider2()"/>
+            <input style="width:500px;" type="range" id="slider" min="1" max="{{setEventSize()}}" value="{{defaultSlide()}}" step="0.01"
+                   onchange="evalSlider2();" oninput="evalSlider2()"/>
         </div>
         <br/>
         <!-- divion for the menu -->
@@ -54,7 +54,7 @@
             </select>
 
             <!-- För att få dropdown menyn att reagera korrekt i alla lägen, Teddy & Co -->
-            <select id="seasons"data-value="bugs" onchange="saveSeason();angular.element(this).scope().getInfoTest();angular.element(this).scope().camp();">
+            <select id="seasons"data-value="bugs" onchange="saveSeason();angular.element(this).scope().resetSlider();angular.element(this).scope().getInfoTest();angular.element(this).scope().camp();">
                 <option value="">Season</option>
             </select>
 
