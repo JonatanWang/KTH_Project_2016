@@ -17,12 +17,14 @@ var IMGformat = ".png";
 var jsonData = null; // Teddy & Co, for filtering
 var APIURL1 = "https://api.helldiversgame.com/1.0/";
 var APIURL2 = "https://files.arrowheadgs.com/helldivers_api/default/" ;
-
+var intervalId = null;
 
 function test(){
     console.log("slider is moving!!");
 
 }
+
+
 
 function evalSlider2() {
 
@@ -74,6 +76,14 @@ function calculate_region(points, points_max) {
     return region;
 }
 
+
+function wait(ms){
+    var start = new Date().getTime();
+    var end = start;
+    while(end < start + ms) {
+        end = new Date().getTime();
+    }
+}
 
 function insertionSortEvents(events) {
 
@@ -220,10 +230,10 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                     var seasonSnapshot = getSeasonSnapshot(choosedSeason);
                     //console.log("snapshotsinSeasonLenght = "+ snapshotsCurrentSeason.length);
                     //console.log("points="+(JSON.parse(snapshotsCurrentSeason[Math.floor(sliderVal)].data))[enemyType].points);
-                    console.log("sliderVal floor="+Math.floor(sliderVal));
-                    console.log("enemyType = " + enemyType);
-                    console.log("snapshotsCurrentSeason[slideVAl] = "+ snapshotsCurrentSeason[Math.floor(sliderVal)].data);
-                    console.log("snapshotsCurrentSeason[slideVAl].time = "+ snapshotsCurrentSeason[Math.floor(sliderVal)].time);
+                   // console.log("sliderVal floor="+Math.floor(sliderVal));
+                   // console.log("enemyType = " + enemyType);
+                    //console.log("snapshotsCurrentSeason[slideVAl] = "+ snapshotsCurrentSeason[Math.floor(sliderVal)].data);
+                   // console.log("snapshotsCurrentSeason[slideVAl].time = "+ snapshotsCurrentSeason[Math.floor(sliderVal)].time);
                     var points = (JSON.parse(snapshotsCurrentSeason[Math.floor(sliderVal)].data))[enemyType].points;
 
                     var points_max = seasonSnapshot.points_max[enemyType];
@@ -249,6 +259,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                         URL = mapImgIllu.concat(result, IMGformat);
                         break;
                     default:
+                        URL = "Images/helldivers_galcamp_progression/helldivers_galcamp_progression_background.png";
                         console.log("gettImagePath in default")
                 }
 
@@ -334,5 +345,37 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                 table.appendChild(tr);
             }
     };
+
+    $scope.playSlider = function()
+    {
+        var latesDay = getLatestDayInSeason(choosedSeason,null);
+        var dayStamp = 0;
+
+        console.log("latestDay = "+ latesDay);
+         intervalId = setInterval(function () {
+            if(dayStamp == latesDay)
+            {
+                //$scope.resetSlider();
+                window.clearInterval(intervalId);
+            }
+            console.log("in interval ="+ dayStamp);
+            document.getElementById('slider').value = dayStamp;
+            $scope.updateStats();
+            dayStamp++;
+        }, 500);
+    }
+
+    $scope.updateStats = function () {
+        evalSlider2();
+        $scope.newsFeed();
+        $scope.getImagePath();
+    }
+
+    $scope.stopSlider = function(){
+        if(intervalId != null)
+        {
+            window.clearInterval(intervalId);
+        }
+    }
 
 });
