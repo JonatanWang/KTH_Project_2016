@@ -349,7 +349,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
     $scope.playSlider = function()
     {
         var latesDay = getLatestDayInSeason(choosedSeason,null);
-        var dayStamp = 0;
+        var dayStamp = Math.floor(sliderVal);
 
         console.log("latestDay = "+ latesDay);
          intervalId = setInterval(function () {
