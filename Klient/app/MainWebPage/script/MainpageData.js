@@ -21,7 +21,7 @@ var APIURL2 = "https://files.arrowheadgs.com/helldivers_api/default/" ;
 
 function test(){
     console.log("slider is moving!!");
-    
+
 }
 
 function evalSlider2() {
@@ -198,8 +198,8 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
             //console.log("attack_events[.lenghg-1] =" + attack_events[attack_events.length-1].end_time);
             //console.log("firstDayTime ="+firstDayTime);
             //console.log("choosedSeason= "+choosedSeason);
-            console.log("!=null attackEvent = "+attack_events);
-            console.log("attackEvent lenght = "+attack_events.length);
+            //console.log("!=null attackEvent = "+attack_events);
+            //console.log("attackEvent lenght = "+attack_events.length);
             //console.log("attackEvent end_time="+attack_events[attack_events.length-1].end_time);
             //console.log("last attackEvent = "+attack_events[attack_events.length-1]);
              attack_eventDay = Math.floor((attack_events[attack_events.length-1].end_time - firstDayTime)/(60*60*24));
@@ -223,6 +223,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                     console.log("sliderVal floor="+Math.floor(sliderVal));
                     console.log("enemyType = " + enemyType);
                     console.log("snapshotsCurrentSeason[slideVAl] = "+ snapshotsCurrentSeason[Math.floor(sliderVal)].data);
+                    console.log("snapshotsCurrentSeason[slideVAl].time = "+ snapshotsCurrentSeason[Math.floor(sliderVal)].time);
                     var points = (JSON.parse(snapshotsCurrentSeason[Math.floor(sliderVal)].data))[enemyType].points;
 
                     var points_max = seasonSnapshot.points_max[enemyType];

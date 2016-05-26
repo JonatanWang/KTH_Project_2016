@@ -42,7 +42,7 @@
                 <label>Day: </label>
                 <output id="sliderValue"></output>
             </p>
-            <input style="width:500px;" type="range" id="slider" min="{{defaultSlide()}}" max="{{setEventSize()}}" value="{{defaultSlide()}}" step="0.01"
+            <input style="width:500px;" type="range" id="slider" min="{{defaultSlide()}}" max="angular.element(this).scope().setEventSize()" value="{{defaultSlide()}}" step="0.01"
                    onchange="evalSlider2();" oninput="evalSlider2();test();angular.element(this).scope().newsFeed();angular.element(this).scope().getImagePath();"/>
         </div>
         <br/>
