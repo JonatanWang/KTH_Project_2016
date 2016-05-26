@@ -1,5 +1,12 @@
+/****
+ * need to put an global stats
+ * need to set the size of slider acording to enemytype
+ * need to sort the season,defend events and attack events
+ *
+ * **/
+
 var sliderVal = 0;
-var enemyType = "global_stats"; // Teddy & Co, default drop down menu value
+var enemyType = 0//"global_stats"; // Teddy & Co, default drop down menu value
 var choosedSeason = 1;
 var currentSeason = 1;
 var flagg = false;
@@ -10,6 +17,12 @@ var IMGformat = ".png";
 var jsonData = null; // Teddy & Co, for filtering
 var APIURL1 = "https://api.helldiversgame.com/1.0/";
 var APIURL2 = "https://files.arrowheadgs.com/helldivers_api/default/" ;
+
+
+function test(){
+    console.log("slider is moving!!");
+    
+}
 
 function evalSlider2() {
 
@@ -83,7 +96,8 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
 
     // Ändrar dynamisk storleken på slidern beroende av den valda säsongen
     $scope.setEventSize = function () {
-        document.getElementById('slider').max = getLatestDayInSeason(choosedSeason);
+
+        document.getElementById('slider').max = getLatestDayInSeason(choosedSeason, null);
     };
 
     $scope.resetSlider = function() {
@@ -91,6 +105,8 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
         document.getElementById('slider').value = defaultValue;
         document.getElementById('sliderValue').innerHTML = defaultValue;
         $scope.setEventSize();
+        $scope.getImagePath();
+        $scope.newsFeed();
     }
 
     $scope.defaultSlide = function () {
@@ -168,34 +184,51 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
         var result;
 
 
-        var dataResponse = getSeasonInfo(choosedSeason);
-        var lastDay = dataResponse.length-1;
-
-        var attack_events = getAttackEvents2(choosedSeason,enemyType);
+        var attack_events = getAttackEvents2(choosedSeason,null);
         var AttackEventsEmpty = true;
         var firstDayTime;
         var attack_eventDay;
 
         //security
-        if(attack_events != null)
+        if(attack_events != null && attack_events.length > 0)
         {
+
             AttackEventsEmpty = false;
              firstDayTime = getStartTimeInSeason(choosedSeason);
-             attack_eventDay = Math.floor((attack_events[attack_events.length-1].end_time - firstDayTime)/(60*60*24))
+            //console.log("attack_events[.lenghg-1] =" + attack_events[attack_events.length-1].end_time);
+            //console.log("firstDayTime ="+firstDayTime);
+            //console.log("choosedSeason= "+choosedSeason);
+            console.log("!=null attackEvent = "+attack_events);
+            console.log("attackEvent lenght = "+attack_events.length);
+            //console.log("attackEvent end_time="+attack_events[attack_events.length-1].end_time);
+            //console.log("last attackEvent = "+attack_events[attack_events.length-1]);
+             attack_eventDay = Math.floor((attack_events[attack_events.length-1].end_time - firstDayTime)/(60*60*24));
+            //console.log("attack_eventDay"+attack_eventDay);
         }
 
                 if(!AttackEventsEmpty && attack_eventDay <= sliderVal && attack_events[attack_events.length-1].status == "success")
                 {
                     result = 12;
+                    AttackEventsEmpty = true;
                 }
                 else
                 {
                     //
+                    //console.log("****start*****");
+                    //console.log("enemyTpe="+enemyType);
                     var snapshotsCurrentSeason = getSnapshotsInSeason(choosedSeason);
-                    var points = (JSON.parse(snapshotsCurrentSeason[Math.floor(sliderVal)].data[enemyType])).points;
-                    var points_max = snapshotsCurrentSeason.points_max[enemyType];
-                    //var points = dataResponse[Math.floor(sliderVal)][enemyType].points;
+                    var seasonSnapshot = getSeasonSnapshot(choosedSeason);
+                    //console.log("snapshotsinSeasonLenght = "+ snapshotsCurrentSeason.length);
+                    //console.log("points="+(JSON.parse(snapshotsCurrentSeason[Math.floor(sliderVal)].data))[enemyType].points);
+                    console.log("sliderVal floor="+Math.floor(sliderVal));
+                    console.log("enemyType = " + enemyType);
+                    console.log("snapshotsCurrentSeason[slideVAl] = "+ snapshotsCurrentSeason[Math.floor(sliderVal)].data);
+                    var points = (JSON.parse(snapshotsCurrentSeason[Math.floor(sliderVal)].data))[enemyType].points;
 
+                    var points_max = seasonSnapshot.points_max[enemyType];
+
+                    console.log("points="+points);
+                    console.log("points_max"+points_max);
                     result = calculate_region(points, points_max) + 1;
                     console.log("result="+result);
                     if (result < 10)
@@ -222,6 +255,8 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
                 var regionIMG = document.getElementById("mapURL");
 
                 regionIMG.src = URL;
+                console.log("img = " + URL);
+        //console.log("****end*****");
 
     };
 
@@ -241,7 +276,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
 
             //test -  to get all events into the newsfeed viewer
             //counting days:
-            var firstDay = getStartTimeInSeason(choosedSeason);
+            var firstDayTime = getStartTimeInSeason(choosedSeason);
 
             //chrono sort text for attack and def
             var newsfeedText = [];
@@ -250,8 +285,10 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
             {
 
                 var datatext = [];
-
-                var day = Math.floor((allEvents[i].end_time - firstDay)/(60*60*24));
+                //console.log("allEvents[i].end_time"+allEvents[i].end_time);
+                //console.log("firstDayTime = "+firstDayTime);
+                var day = Math.floor((allEvents[i].end_time - firstDayTime)/(60*60*24));
+                //console.log("day="+day);
                 // datatext[0] = "DAY x"
                 datatext.push("DAY " + day);
                 //datatext[1] = "Region..." || "Final..."

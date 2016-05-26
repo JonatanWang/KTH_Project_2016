@@ -21,25 +21,56 @@ var allAttackEvents = [];
 var allDefendEvents = [];
 /**
  * **/
+//change name in the future
+function getSeasonSnapshot(season)
+{
+    //console.log("in getSeasonSnapshot, season = "+season);
+    //console.log("allSeason.lenght =" + allSeasons.length );
+    for(var i=0;i<allSeasons.length;i++)
+    {
+        //console.log("in foor-loop, allSeasons[i].snapshots.season = " + allSeasons[i].snapshots[0].season);
 
+        if(allSeasons[i].snapshots[0].season  == season)
+        {
+            //console.log("in for-loop getSeasonSnapshot, season = "+season);
+            return allSeasons[i];
+        }
+    }
+}
 
 function getSnapshotsInSeason(season)
 {
-    return allSeasons[season-1].snapshots;
+    // allSeason are not in order, need fix!!!
+
+    for(var i=0;i<allSeasons.length;i++)
+    {
+        if(allSeasons[i].snapshots[0].season  == season)
+        {
+            return allSeasons[i].snapshots;
+        }
+    }
 }
 
 function getAttackEvents2(season, enemytype)
 {
+    var seasonAttackEvents = getSeasonSnapshot(season).attack_events;
+    if(seasonAttackEvents == null)
+    {
+        console.log("in getAttack return null");
+        return null;
+    }
+
+    console.log("attack is not null");
+    console.log("attack data = " + seasonAttackEvents)
     if(enemytype != null)
     {
-
         var attackEventsForEnemy = [];
-        console.log("allAttackEvents = "+allAttackEvents[season]);
-        for(var i=0;i<allAttackEvents[season].length;i++)
+
+        for(var i=0;i<seasonAttackEvents.length;i++)
         {
-            if((allAttackEvents[season])[i].enemy == enemytype)
+            if(seasonAttackEvents[i].enemy == enemytype)
             {
-                attackEventsForEnemy.push((allAttackEvents[season])[i]);
+                attackEventsForEnemy.push(seasonAttackEvents[i]);
             }
         }
         return attackEventsForEnemy;
@@ -47,28 +78,37 @@ function getAttackEvents2(season, enemytype)
     else
     {
         //return attack evetn for all enemy
-        return allAttackEvents[season];
+        return seasonAttackEvents;
     }
 }
 
 function getDefendEvents2(season, enemytype)
 {
+    //console.log("in getDefEvent season = "+season);
+    var seasonDefEvents = getSeasonSnapshot(season).defend_events;
+
+    if(seasonDefEvents == null)
+    {
+        return null;
+    }
+
     if(enemytype != null)
     {
         var defendEventsForEnemy = [];
-        for(var i=0;i<allDefendEvents[season].length;i++)
+        for(var i=0;i<seasonDefEvents.length;i++)
         {
-            if((allDefendEvents[season])[i].enemy == enemytype)
+            if(seasonDefEvents[i].enemy == enemytype)
             {
-                defendEventsForEnemy.push((allDefendEvents[season])[i]);
+                defendEventsForEnemy.push(seasonDefEvents[i]);
             }
         }
+
         return defendEventsForEnemy;
     }
     else
     {
         //return attack evetn for all enemy
-        return allAttackEvents[season];
+        return seasonDefEvents;
     }
 }
 
@@ -78,32 +118,63 @@ function getLatestSeason(){
 
 function getStartTimeInSeason(season)
 {
-    var dataResponse = getSeasonInfo(season);
+    var dataResponse = getSnapshotsInSeason(season);
     if( dataResponse.length != 0)
     {
-        return dataResponse[0][0].time;
+        console.log("season = "+season);
+        console.log("realSeason= " + dataResponse[0].season);
+        //console.log("time[0]= "+ dataResponse[0].time)
+        return dataResponse[0].time;
+
     }
 
     return null;
 }
 
-function getLatestDayInSeason(season){
-    var tempSeasonInfo = getSeasonInfo(season);
+function getLatestDayInSeason(season, enemytype){
+
+    var tempSeasonInfo = getSnapshotsInSeason(season);
     //earlier season can get an extra day error.
-    if(tempSeasonInfo != null)
+    if(tempSeasonInfo != null && enemytype == null)
     {
         return tempSeasonInfo.length;
     }
+    else
+    {
+        var defEventsForEnemyAmount = 0;
+        var attackEventsForEnemyAmount = 0;
 
+        var enemyTypeDefEvents = getDefendEvents2(season, enemytype);
+        var enemyTypeAttackEvents = getAttackEvents2(season, enemytype);
+        console.log("enemyDef = "+ enemyTypeDefEvents);
+        console.log("enemyDef lenght= "+ enemyTypeDefEvents.length);
+        if(enemyTypeDefEvents != null)
+        {
+
+            defEventsForEnemyAmount = enemyTypeDefEvents.length;
+            console.log("defEventFor.. = "+ defEventsForEnemyAmount);
+        }
+
+        if(enemyTypeAttackEvents != null)
+        {
+            attackEventsForEnemyAmount = enemyTypeAttackEvents.length;
+            console.log("attackEventsForEnemyAmount = "+ attackEventsForEnemyAmount);
+        }
+        console.log("outside defEventFor.. = "+ defEventsForEnemyAmount);
+        console.log("outside attackEventsForEnemyAmount = "+ attackEventsForEnemyAmount);
+
+        console.log("result = " + Math.max(defEventsForEnemyAmount,attackEventsForEnemyAmount));
+        return Math.max(defEventsForEnemyAmount,attackEventsForEnemyAmount);
+    }
     return null;
 }
 
 function extractEverything(JsonObj){
 
-    allSeasons.push(JsonObj);
-    if(JsonObj.data.attack_events === 'undefined')
+    allSeasons.push(JsonObj.data);
+
+    if(JsonObj.data.attack_events === undefined)
     {
-        console.log("attackEvent is undefined");
         allAttackEvents.push(null);
     }
     else
@@ -111,7 +182,7 @@ function extractEverything(JsonObj){
         //console.log("attackEvent is not null");
         allAttackEvents.push(JsonObj.data.attack_events);
     }
-
+    //got to do same for defend event as attack events
     allDefendEvents.push(JsonObj.data.defend_events);
 
 

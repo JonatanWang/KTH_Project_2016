@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <title>Helldivers</title>
     <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.3.14/angular.min.js"></script>
+    <script src="script/ExtractAllData.js"></script>
     <script src="script/ProgressionMap.js"></script>
     <script src="script/MainpageData.js"></script>
     <script src="script/Calculation.js"></script>
     <script src="script/LinearCalc.js"></script>
-    <script src="script/ExtractAllData.js"></script>
+
     <link rel="stylesheet" href="css/HelldiversProgressionStats.css">
 </head>
 <body ng-app="app" ng-controller="WebApiCtrl">
@@ -42,7 +43,7 @@
                 <output id="sliderValue"></output>
             </p>
             <input style="width:500px;" type="range" id="slider" min="{{defaultSlide()}}" max="{{setEventSize()}}" value="{{defaultSlide()}}" step="0.01"
-                   onchange="evalSlider2();angular.element(this).scope().newsFeed();" oninput="evalSlider2()"/>
+                   onchange="evalSlider2();" oninput="evalSlider2();test();angular.element(this).scope().newsFeed();angular.element(this).scope().getImagePath();"/>
         </div>
         <br/>
         <!-- divion for the menu -->
