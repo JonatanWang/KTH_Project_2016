@@ -13,9 +13,11 @@
     <link rel="stylesheet" href="css/HelldiversProgressionStats.css">
 </head>
 <body ng-app="app" ng-controller="WebApiCtrl">
-<div class="mainContainer">
+<div id="mainContainer">
     <img class="imageHandler" src="Images/helldivers_galcamp_progression/helldivers_galcamp_progression_background.png">
-    <img id="mapURL"  >
+    <img class = "mapURL" id="maps0" >
+    <img class = "mapURL" id="maps1"  >
+    <img class = "mapURL" id="maps2"  >
     <!--<img class="imageHandler" src="Images/helldivers_galcamp_progression/illuminate/helldivers_galcamp_progression_illuminate_01.png">
     <img class="imageHandler" src="Images/helldivers_galcamp_progression/cyborg/helldivers_galcamp_progression_cyborg_01.png">
     <img class="imageHandler" src="Images/helldivers_galcamp_progression/bug/helldivers_galcamp_progression_bug_01.png">
@@ -44,7 +46,7 @@
             </p>
             <button type="button"; onclick="angular.element(this).scope().playSlider()">Play</button>
             <input style="width:500px;" type="range" id="slider" min="{{defaultSlide()}}" max="angular.element(this).scope().setEventSize()" value="{{defaultSlide()}}" step="0.01"
-                   onchange="evalSlider2();" oninput="evalSlider2();test();angular.element(this).scope().newsFeed();angular.element(this).scope().getImagePath();"/>
+                   onchange="evalSlider2();" oninput="evalSlider2();angular.element(this).scope().newsFeed();angular.element(this).scope().getImagePath();"/>
             <!-- debug to stop the play button -->
             <button type="button"; onclick="angular.element(this).scope().stopSlider()">Debug: Stop Play</button>
         </div>
@@ -52,6 +54,7 @@
         <!-- divion for the menu -->
         <div class="menuPosition">
             <select id="enemyType" name="Faction" data-value="bugs" onchange="angular.element(this).scope().camp()">
+                <option value="global_stats">Global</option>
                 <option value="0">Bugs</option>
                 <option value="1">Cyborgs</option>
                 <option value="2">Illuminate</option>

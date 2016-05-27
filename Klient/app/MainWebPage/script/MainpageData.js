@@ -13,18 +13,13 @@ var flagg = false;
 var mapImgBugs = "Images/helldivers_galcamp_progression/bug/helldivers_galcamp_progression_bug_";
 var mapImgCyborgs = "Images/helldivers_galcamp_progression/cyborg/helldivers_galcamp_progression_cyborg_";
 var mapImgIllu = "Images/helldivers_galcamp_progression/illuminate/helldivers_galcamp_progression_illuminate_";
+var mapImg = [mapImgBugs, mapImgCyborgs, mapImgIllu];
 var IMGformat = ".png";
 var jsonData = null; // Teddy & Co, for filtering
 var APIURL1 = "https://api.helldiversgame.com/1.0/";
 var APIURL2 = "https://files.arrowheadgs.com/helldivers_api/default/" ;
 var intervalId = null;
-
-function test(){
-    console.log("slider is moving!!");
-
-}
-
-
+var noEnemys = 3; //
 
 function evalSlider2() {
 
@@ -76,15 +71,6 @@ function calculate_region(points, points_max) {
     return region;
 }
 
-
-function wait(ms){
-    var start = new Date().getTime();
-    var end = start;
-    while(end < start + ms) {
-        end = new Date().getTime();
-    }
-}
-
 function insertionSortEvents(events) {
 
     for(var i=1;i<events.length;i++)
@@ -99,6 +85,50 @@ function insertionSortEvents(events) {
     }
 }
 
+function isAttackEventSuccessful(season, enemytype, atDay){
+    var attackEventOfEnemy = getAttackEvents2(season, enemytype);
+    var firstDayTime = getStartTimeInSeason(choosedSeason);
+    var attack_eventDay;
+
+    if(attackEventOfEnemy != null && attackEventOfEnemy.length > 0)
+    {
+        attack_eventDay = Math.floor((attackEventOfEnemy[attackEventOfEnemy.length-1].end_time - firstDayTime)/(60*60*24));
+        if(attack_eventDay <= atDay && attackEventOfEnemy[attackEventOfEnemy.length-1].status == "success")
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+function calculateImg(season, enemytype)
+{
+    var result;
+    if(isAttackEventSuccessful(season, enemytype, Math.floor(sliderVal)))
+    {
+        result = 12;
+    }
+    else
+    {
+        var snapshotsCurrentSeason = getSnapshotsInSeason(season);
+        var seasonSnapshot = getSeasonSnapshot(season);
+
+        var points = (JSON.parse(snapshotsCurrentSeason[Math.floor(sliderVal)].data))[enemytype].points;
+
+        var points_max = seasonSnapshot.points_max[enemytype];
+
+        //console.log("points="+points);
+        //console.log("points_max"+points_max);
+        result = calculate_region(points, points_max) + 1;
+        //console.log("result="+result);
+        if (result < 10)
+        {
+            result = "0".concat(result);
+        }
+    }
+
+    return result;
+}
 
 app.controller("WebApiCtrl", function ($scope, dataService) {
 
@@ -107,7 +137,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
     // Ändrar dynamisk storleken på slidern beroende av den valda säsongen
     $scope.setEventSize = function () {
 
-        document.getElementById('slider').max = getLatestDayInSeason(choosedSeason, null);
+        document.getElementById('slider').max = getLatestDayInSeason(choosedSeason, null)-0.02;//
     };
 
     $scope.resetSlider = function() {
@@ -189,87 +219,31 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
     }
 
     $scope.getImagePath = function(){
-
         var URL;
-        var result;
+        var result = [];
 
-
-        var attack_events = getAttackEvents2(choosedSeason,null);
-        var AttackEventsEmpty = true;
-        var firstDayTime;
-        var attack_eventDay;
-
-        //security
-        if(attack_events != null && attack_events.length > 0)
+        
+        for(var i=0;i<noEnemys;i++)
         {
-
-            AttackEventsEmpty = false;
-             firstDayTime = getStartTimeInSeason(choosedSeason);
-            //console.log("attack_events[.lenghg-1] =" + attack_events[attack_events.length-1].end_time);
-            //console.log("firstDayTime ="+firstDayTime);
-            //console.log("choosedSeason= "+choosedSeason);
-            //console.log("!=null attackEvent = "+attack_events);
-            //console.log("attackEvent lenght = "+attack_events.length);
-            //console.log("attackEvent end_time="+attack_events[attack_events.length-1].end_time);
-            //console.log("last attackEvent = "+attack_events[attack_events.length-1]);
-             attack_eventDay = Math.floor((attack_events[attack_events.length-1].end_time - firstDayTime)/(60*60*24));
-            //console.log("attack_eventDay"+attack_eventDay);
+            result[i] = calculateImg(choosedSeason, i);
         }
 
-                if(!AttackEventsEmpty && attack_eventDay <= sliderVal && attack_events[attack_events.length-1].status == "success")
-                {
-                    result = 12;
-                    AttackEventsEmpty = true;
-                }
-                else
-                {
-                    //
-                    //console.log("****start*****");
-                    //console.log("enemyTpe="+enemyType);
-                    var snapshotsCurrentSeason = getSnapshotsInSeason(choosedSeason);
-                    var seasonSnapshot = getSeasonSnapshot(choosedSeason);
-                    //console.log("snapshotsinSeasonLenght = "+ snapshotsCurrentSeason.length);
-                    //console.log("points="+(JSON.parse(snapshotsCurrentSeason[Math.floor(sliderVal)].data))[enemyType].points);
-                   // console.log("sliderVal floor="+Math.floor(sliderVal));
-                   // console.log("enemyType = " + enemyType);
-                    //console.log("snapshotsCurrentSeason[slideVAl] = "+ snapshotsCurrentSeason[Math.floor(sliderVal)].data);
-                   // console.log("snapshotsCurrentSeason[slideVAl].time = "+ snapshotsCurrentSeason[Math.floor(sliderVal)].time);
-                    var points = (JSON.parse(snapshotsCurrentSeason[Math.floor(sliderVal)].data))[enemyType].points;
+        if(enemyType == "global_stats")
+        {
 
-                    var points_max = seasonSnapshot.points_max[enemyType];
-
-                    console.log("points="+points);
-                    console.log("points_max"+points_max);
-                    result = calculate_region(points, points_max) + 1;
-                    console.log("result="+result);
-                    if (result < 10)
-                    {
-                        result = "0".concat(result);
-                    }
-                }
-
-                switch(enemyType){
-                    case "0":
-                        URL = mapImgBugs.concat(result, IMGformat);
-                        break;
-                    case "1":
-                        URL = mapImgCyborgs.concat(result, IMGformat);
-                        break;
-                    case "2":
-                        URL = mapImgIllu.concat(result, IMGformat);
-                        break;
-                    default:
-                        URL = "Images/helldivers_galcamp_progression/helldivers_galcamp_progression_background.png";
-                        console.log("gettImagePath in default")
-                }
-
-
-                var regionIMG = document.getElementById("mapURL");
-
-                regionIMG.src = URL;
-                console.log("img = " + URL);
-        //console.log("****end*****");
-
+            for(var i=0;i<mapImg.length;i++)
+            {
+                var imgHolder = document.getElementById("maps"+i);
+                var img = document.createElement('img');
+                imgHolder.src =  mapImg[i].concat(result[i], IMGformat);
+            }
+        }
+        else
+        {
+            URL = mapImg[enemyType].concat(result[enemyType], IMGformat);
+            var regionIMG = document.getElementById("maps"+enemyType);
+            regionIMG.src = URL;
+        }
     };
 
 
@@ -297,11 +271,7 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
             {
 
                 var datatext = [];
-                //console.log("allEvents[i].end_time"+allEvents[i].end_time);
-                //console.log("firstDayTime = "+firstDayTime);
                 var day = Math.floor((allEvents[i].end_time - firstDayTime)/(60*60*24));
-                //console.log("day="+day);
-                // datatext[0] = "DAY x"
                 datatext.push("DAY " + day);
                 //datatext[1] = "Region..." || "Final..."
                 if(allEvents[i].region)//waiting for file
@@ -351,14 +321,12 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
         var latesDay = getLatestDayInSeason(choosedSeason,null);
         var dayStamp = Math.floor(sliderVal);
 
-        console.log("latestDay = "+ latesDay);
          intervalId = setInterval(function () {
             if(dayStamp == latesDay)
             {
                 //$scope.resetSlider();
                 window.clearInterval(intervalId);
             }
-            console.log("in interval ="+ dayStamp);
             document.getElementById('slider').value = dayStamp;
             $scope.updateStats();
             dayStamp++;
@@ -377,5 +345,6 @@ app.controller("WebApiCtrl", function ($scope, dataService) {
             window.clearInterval(intervalId);
         }
     }
+
 
 });
